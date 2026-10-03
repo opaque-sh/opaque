@@ -65,7 +65,14 @@ Hard problem: lineage through note merge and split. Preferred design is an exit-
 
 Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap. Until then, cross-asset moves are exit then shield through a target.
 
-## 9. Open questions
+## 9. Implementation status
+
+- `contracts/src/OpaquePool.sol`: shield, transact, donate, fee collection, caps, guardian pause. Tested with a mock hasher and verifier.
+- `circuits/pool`: asset-aware spend circuit. Compiles and passes its tests. No wallet-key binding yet.
+- Exits are plain transfers to the recipient. Exit targets (`IExitTarget`) are not wired in. A transaction with non-empty `ext.data` reverts for now.
+- The ERC-4337 account path from v0 is not ported.
+
+## 10. Open questions
 
 1. Circuit freeze: include lineage hooks now, or ship v1 without them.
 2. Asset id width and how new assets are registered without an admin.

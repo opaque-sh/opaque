@@ -9,8 +9,8 @@ evm_version = "cancun"
 optimizer = true
 optimizer_runs = 200
 via_ir = false
+# legacy/ is outside src, test and script, so it is never compiled.
 
-# legacy/ is reference only and is never compiled.
 
 [fuzz]
 runs = 256

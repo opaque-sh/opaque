@@ -25,10 +25,11 @@ Read `docs/DESIGN.md` for the full list of decisions and open questions.
 ## Repository layout
 
 ```
-contracts/        Solidity (Foundry). Draft interfaces only for now.
-circuits/         Noir circuit notes and, later, the circuit itself.
+contracts/        Solidity (Foundry): OpaquePool, MerkleTree, interfaces, tests.
+circuits/pool/    Noir spend circuit (draft).
 docs/             Design, roadmap, trust model, brand.
-legacy/v0/ Reference copies of the v0 contracts. Not compiled.
+legacy/v0/        Reference copies of the v0 contracts. Not compiled.
+.github/          CI: forge test and nargo test.
 ```
 
 ## Principles
@@ -46,6 +47,17 @@ legacy/v0/ Reference copies of the v0 contracts. Not compiled.
 - Promise a yield rate or talk about the token price.
 - Post a number the chain cannot show.
 - Claim privacy we cannot deliver. Prompts, IP addresses and timing can still be visible to services you connect to. Opaque hides who paid, not what you send.
+
+## Develop
+
+```
+git clone --depth 1 https://github.com/foundry-rs/forge-std lib/forge-std
+forge build
+forge test
+cd circuits/pool && nargo test
+```
+
+Contracts use solc 0.8.26. The circuit is tested with nargo 1.0.0-beta.11.
 
 ## Status
 
