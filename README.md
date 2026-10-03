@@ -25,7 +25,8 @@ Read `docs/DESIGN.md` for the full list of decisions and open questions.
 ## Repository layout
 
 ```
-contracts/        Solidity (Foundry): OpaquePool, MerkleTree, interfaces, tests.
+contracts/        Solidity (Foundry): OpaquePool, MerkleTree, Poseidon2Hasher, interfaces, tests.
+tools/            Generators (Poseidon2 hasher from Barretenberg constants).
 circuits/pool/    Noir spend circuit (draft).
 docs/             Design, roadmap, trust model, brand.
 legacy/v0/        Reference copies of the v0 contracts. Not compiled.

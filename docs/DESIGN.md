@@ -68,6 +68,8 @@ Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap.
 ## 9. Implementation status
 
 - `contracts/src/OpaquePool.sol`: shield, transact, donate, fee collection, caps, guardian pause. Tested with a mock hasher and verifier.
+- `contracts/src/Poseidon2Hasher.sol`: generated Poseidon2 (BN254, t = 4). Matches the circuit on every reference vector, and the pool's tree roots match the circuit's Merkle function.
+- `circuits/pool/scripts/build_verifier.sh`: proof and verifier pipeline. Not run end to end yet (the trusted-setup download was blocked where it was written).
 - `circuits/pool`: asset-aware spend circuit. Compiles and passes its tests. No wallet-key binding yet.
 - Exits are plain transfers to the recipient. Exit targets (`IExitTarget`) are not wired in. A transaction with non-empty `ext.data` reverts for now.
 - The ERC-4337 account path from v0 is not ported.
@@ -76,6 +78,6 @@ Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap.
 
 1. Circuit freeze: include lineage hooks now, or ship v1 without them.
 2. Asset id width and how new assets are registered without an admin.
-3. Gas per private exit. v0 measured 4.7M to 5.2M, which may exceed public bundler limits.
+3. Gas per private exit. v0 measured 4.7M to 5.2M, which may exceed public bundler limits. With the generated Poseidon2 hasher, one tree insert costs about 24 hashes at roughly 41k gas each (about 1M), so a transaction that adds two notes is about 2M before proof verification. Worth optimizing (a cheaper hash call path, or inserting aligned pairs together) before launch.
 4. Exact holder share and fee levels.
 5. Native ETH handling in `IExitTarget` (send value vs approve).
