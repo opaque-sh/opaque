@@ -1,0 +1,25 @@
+# Foundry
+out/
+cache/
+broadcast/
+lib/
+
+# Noir
+circuits/**/target/
+*.proof
+*.vk
+
+# Node
+node_modules/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# OS and editor
+.DS_Store
+.idea/
+.vscode/

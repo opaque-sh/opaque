@@ -1,0 +1,20 @@
+[profile.default]
+src = "contracts/src"
+test = "contracts/test"
+script = "contracts/script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+via_ir = false
+
+# legacy/ is reference only and is never compiled.
+
+[fuzz]
+runs = 256
+
+[invariant]
+runs = 256
+depth = 400
