@@ -69,3 +69,7 @@ The workflow ran on GitHub: the circuit compiled, the example witness solved, a 
 On chain: `contracts/test/HonkVerifier.t.sol` runs the generated verifier against the real proof (fixtures in `contracts/test/fixtures/`). It accepts the proof, accepts it through the pool's `IVerifier` interface, rejects a change to any of the 8 public inputs and rejects a tampered proof. One `verify` costs about 3.9 million gas in Foundry's accounting. Arbitrum-style chains charge for some operations differently, so measure it on the real chain.
 
 Not done yet: a proof for a real pool transaction. The example proof uses its own tree and `ext_data_hash = 999`, so it can't go through `OpaquePool.transact`. That needs a witness generator that builds the circuit inputs from a real pool state (the tree through the deployed hasher, `extDataHash` from the contract), which is part of the SDK.
+
+### End-to-end scenario
+
+`sdk/e2e.ts` builds a fixed scenario: shroud 1,000 $OPA into an empty pool, then unshroud 40% of the shares to a recipient. `circuits/pool/e2e.toml` holds its circuit inputs and `circuits/pool/scripts/prove_e2e.sh` makes the proof (the build-verifier workflow runs it and uploads `e2e/e2e_proof.bin` and `e2e/e2e_public_inputs.bin`). Put those two files in `contracts/test/fixtures/`, and `contracts/test/OpaquePoolE2E.t.sol` runs the real pool, hasher and verifier on it. Until they are there, the proof tests show as skipped.

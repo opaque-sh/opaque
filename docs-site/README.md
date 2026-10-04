@@ -4,15 +4,7 @@ The content and theme for the Opaque documentation site. It targets [Fumadocs](h
 
 Status: **content and theme only**. The app shell is not in this folder, because the package registry was blocked where this was written, so nothing here has been installed or built. Generate the shell locally, then drop these files in.
 
-## Option A: build the docs inside the Lovable site
-
-`lovable/docs/*.md` is the same content as plain markdown (the Fumadocs callouts and cards are converted to GitHub-style alerts and bullet lists), and `lovable/sidebar.json` is the sidebar order. Copy them into the Lovable project's repository under `src/content/docs/` (through its GitHub sync), then run the prompt that builds the `/docs` routes. This serves `opaque.sh/docs` with no proxy.
-
-## Option B: a separate Fumadocs app
-
-Use the steps below. This is the better tool for search and MDX, and needs its own deployment (for example `docs.opaque.sh`).
-
-## Set up (Option B)
+## Set up
 
 1. Generate a shell, outside this repo or in a separate repo (for example `opaque-sh/docs`):
 

@@ -1,0 +1,11 @@
+{
+  "name": "@opaque-sh/sdk",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Opaque client library, draft. Notes, the Merkle tree, and witness generation for the pool circuit.",
+  "scripts": {
+    "test": "node --test",
+    "e2e:gen": "node e2e.ts"
+  }
+}

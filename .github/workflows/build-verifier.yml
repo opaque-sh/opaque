@@ -38,6 +38,10 @@ jobs:
           mkdir -p out-verifier
           ./circuits/pool/scripts/build_verifier.sh 2>&1 | tee out-verifier/build.log
 
+      - name: Prove the end-to-end scenario
+        run: |
+          ./circuits/pool/scripts/prove_e2e.sh 2>&1 | tee out-verifier/prove_e2e.log
+
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Check the verifier compiles and how big it is
         continue-on-error: true
@@ -51,6 +55,8 @@ jobs:
           mkdir -p out-verifier
           cp contracts/src/HonkVerifier.sol out-verifier/ 2>/dev/null || true
           cp -r circuits/pool/target/bb out-verifier/bb 2>/dev/null || true
+          mkdir -p out-verifier/e2e
+          cp contracts/test/fixtures/e2e_proof.bin contracts/test/fixtures/e2e_public_inputs.bin out-verifier/e2e/ 2>/dev/null || true
 
       - uses: actions/upload-artifact@v4
         if: always()

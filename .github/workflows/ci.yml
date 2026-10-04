@@ -27,3 +27,19 @@ jobs:
       - name: Test circuit
         working-directory: circuits/pool
         run: nargo test
+
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: SDK tests
+        working-directory: sdk
+        run: npm test
+      - name: The end-to-end scenario files are up to date
+        working-directory: sdk
+        run: |
+          npm run e2e:gen
+          git diff --exit-code -- ../circuits/pool/e2e.toml ../contracts/test/fixtures/e2e_scenario.json
