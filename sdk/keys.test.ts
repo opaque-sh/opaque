@@ -94,3 +94,19 @@ test("scan: finds only my notes, and the tree follows the events", async () => {
   assert.equal(tree.root, direct.root);
   assert.throws(() => syncTree([events[0], events[2]]), /missing leaf 1/);
 });
+
+test("scan: a shroud note is found even if the wallet predicted the wrong share count", async () => {
+  const me = deriveKeys(sig(10));
+  // the wallet predicted 1000 shares, but another deposit landed first and the pool minted 990
+  const minted = 990n;
+  const note: Note = { opk: me.opk, rho: 5n, r: 6n, assetId: 1n, amount: minted };
+  const event = {
+    index: 0,
+    commitment: commitment(note),
+    ciphertext: await encryptNote({ rho: 5n, r: 6n, amount: 1000n, assetId: 1n }, me.viewPublic),
+  };
+  assert.equal((await findMyNotes([event], me)).length, 0, "without the minted figure the note is not found");
+  const found = await findMyNotes([{ ...event, shroudedShares: minted }], me);
+  assert.equal(found.length, 1);
+  assert.equal(found[0].note.amount, minted);
+});

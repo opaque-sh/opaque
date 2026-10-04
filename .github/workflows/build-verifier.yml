@@ -57,6 +57,8 @@ jobs:
           cp -r circuits/pool/target/bb out-verifier/bb 2>/dev/null || true
           mkdir -p out-verifier/e2e
           cp contracts/test/fixtures/e2e_proof.bin contracts/test/fixtures/e2e_public_inputs.bin out-verifier/e2e/ 2>/dev/null || true
+          mkdir -p out-verifier/circuit
+          cp circuits/pool/target/opaque_pool.json out-verifier/circuit/ 2>/dev/null || true
 
       - uses: actions/upload-artifact@v4
         if: always()

@@ -37,7 +37,7 @@ const bytesToBig = (b: Uint8Array): bigint => BigInt(toHex(b));
 
 async function deriveKey(shared: Uint8Array, ephPublic: Uint8Array, recvPublic: Uint8Array): Promise<CryptoKey> {
   if (shared.every((b) => b === 0)) throw new Error("bad key exchange");
-  const ikm = await subtle.importKey("raw", shared, "HKDF", false, ["deriveKey"]);
+  const ikm = await subtle.importKey("raw", shared as BufferSource, "HKDF", false, ["deriveKey"]);
   const salt = new Uint8Array(64);
   salt.set(ephPublic, 0);
   salt.set(recvPublic, 32);

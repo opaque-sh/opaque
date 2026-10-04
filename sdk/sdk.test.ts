@@ -143,3 +143,14 @@ test("ext data hash matches the value computed with Foundry (abi.encode, keccak,
   });
   assert.equal(h, 0x15de789b1fb5b4dec82bb01269290e1617a5d718105c650e659a2e1548e34c3n);
 });
+
+test("circuitInputs matches the prover toml", async () => {
+  const { buildScenario } = await import("./e2e.ts");
+  const { witness } = buildScenario();
+  const ci = witness.circuitInputs as Record<string, any>;
+  assert.equal(ci.root, '0x' + witness.publicInputs.root.toString(16).padStart(64, "0"));
+  assert.ok(witness.proverToml.includes(`root = "${ci.root}"`));
+  assert.ok(witness.proverToml.includes(`path = [${ci.in0.path.map((x: string) => `"${x}"`).join(", ")}]`));
+  assert.equal(ci.in0.path.length, 24);
+  assert.equal(ci.in1.amount, "0x" + "0".repeat(64));
+});

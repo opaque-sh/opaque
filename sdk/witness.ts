@@ -36,7 +36,10 @@ export type PublicInputs = {
   extDataHash: bigint;
 };
 
-export type Witness = { publicInputs: PublicInputs; proverToml: string };
+/** The same inputs as `proverToml`, shaped for noir_js: every field element is a 0x hex string. */
+export type CircuitInputs = Record<string, unknown>;
+
+export type Witness = { publicInputs: PublicInputs; proverToml: string; circuitInputs: CircuitInputs };
 
 const hex = (v: bigint): string => '"0x' + v.toString(16).padStart(64, "0") + '"';
 
@@ -122,5 +125,29 @@ export function buildWitness(spec: TransactionSpec): Witness {
     lines.push(`r = ${hex(o.r)}`);
     lines.push(`amount = ${hex(o.amount)}`);
   });
-  return { publicInputs, proverToml: lines.join("\n") + "\n" };
+  const h = (v: bigint) => "0x" + v.toString(16).padStart(64, "0");
+  const circuitInputs: CircuitInputs = {
+    root: h(publicInputs.root),
+    nullifier0: h(publicInputs.nullifier0),
+    nullifier1: h(publicInputs.nullifier1),
+    commitment0: h(publicInputs.commitment0),
+    commitment1: h(publicInputs.commitment1),
+    asset_id: h(publicInputs.assetId),
+    exit_amount: h(publicInputs.exitAmount),
+    ext_data_hash: h(publicInputs.extDataHash),
+  };
+  slots.forEach((s, k) => {
+    circuitInputs[`in${k}`] = {
+      nk: h(s.nk),
+      rho: h(s.note.rho),
+      r: h(s.note.r),
+      amount: h(s.note.amount),
+      index: h(BigInt(s.index)),
+      path: s.path.map(h),
+    };
+  });
+  outputs.forEach((o, k) => {
+    circuitInputs[`out${k}`] = { opk: h(o.opk), rho: h(o.rho), r: h(o.r), amount: h(o.amount) };
+  });
+  return { publicInputs, proverToml: lines.join("\n") + "\n", circuitInputs };
 }
