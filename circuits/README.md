@@ -73,3 +73,5 @@ Not done yet: a proof for a real pool transaction. The example proof uses its ow
 ### End-to-end scenario
 
 `sdk/e2e.ts` builds a fixed scenario: shroud 1,000 $OPA into an empty pool, then unshroud 40% of the shares to a recipient. `circuits/pool/e2e.toml` holds its circuit inputs and `circuits/pool/scripts/prove_e2e.sh` makes the proof (the build-verifier workflow runs it and uploads `e2e/e2e_proof.bin` and `e2e/e2e_public_inputs.bin`). Put those two files in `contracts/test/fixtures/`, and `contracts/test/OpaquePoolE2E.t.sol` runs the real pool, hasher and verifier on it. Until they are there, the proof tests show as skipped.
+
+Result (2026-10-04): the end-to-end proof from the GitHub run passes through the real pool, `Poseidon2Hasher` and `HonkVerifier`. A recipient or ciphertext changed after the proof was made is rejected, and so is a replay. Note that the generated verifier reverts with its own error (`SumcheckFailed`) on a bad proof instead of returning false, so the pool's own `InvalidProof` error only appears for a verifier that returns false.
