@@ -11,7 +11,7 @@ Every note still carries an asset id inside its commitment, always 1 here. The f
 
 Shielding $OPA pulls tokens into the pool and mints shares at the current price. `backing` is the tokens held for all notes. `units` is the total shares.
 
-A donation adds to the backing without minting shares. Every note's shares are then worth more tokens. Exiting redeems shares at the current price. The flat unshield fee also stays in the backing, so it goes to everyone still shielded.
+A donation adds to the backing without minting shares. Every note's shares are then worth more tokens. Exiting redeems shares at the current price. The unshield fee also stays in the backing, so it goes to everyone still shielded.
 
 ## Why only private holders earn
 
@@ -19,4 +19,4 @@ Yield accrues to shares, and shares exist only inside notes. Tokens in a public 
 
 ## Immutable configuration
 
-The verifier, the $OPA address, the guardian, the flat unshield fee and the deposit schedule are set in the constructor. None can be changed. The pool has no fee recipient address: it never sends fees to anyone.
+The verifier, the $OPA address, the guardian, the unshield fee percentage and the deposit schedule are set in the constructor. None can be changed. The pool has no fee recipient address: it never sends fees to anyone.

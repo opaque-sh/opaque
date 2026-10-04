@@ -41,7 +41,7 @@ function setDepositsPaused(bool paused) external;
 | Function | Description |
 | --- | --- |
 | `shield` | Deposits `amount` $OPA into a note completed with `stub`. Reverts while deposits are paused or above the cap |
-| `transact` | Spends up to two notes, creates two notes and optionally exits part of the value, paying the flat fee. Checks the root, the nullifiers and the proof |
+| `transact` | Spends up to two notes, creates two notes and optionally exits part of the value, paying the unshield fee. Checks the root, the nullifiers and the proof |
 | `donate` | Adds $OPA to the vault backing without minting shares. Anyone can call it, also while deposits are paused |
 | `setDepositsPaused` | Guardian only. Pauses or resumes new shields. Nothing else |
 
@@ -87,7 +87,7 @@ Wallets rebuild the tree and find their notes from `NoteAdded`.
 | `NullifierUsed` | A nullifier already spent |
 | `DuplicateNullifier` | Both nullifiers in a transaction are the same |
 | `WrongCaller` | `ext.caller` is set and the sender is someone else |
-| `FeeTooHigh` | Relayer fee plus the flat fee exceeds the exit amount |
+| `FeeTooHigh` | Relayer fee plus the unshield fee exceeds the exit amount |
 | `BadExit` | An exit without a recipient, or a fee with no exit |
 | `ExitTargetsNotSupported` | `ext.data` is not empty |
 | `InvalidProof` | The verifier rejects the proof |

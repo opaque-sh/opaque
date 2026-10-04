@@ -27,7 +27,7 @@ Every value is fixed forever at deployment.
 | `verifier_` | The proof verifier |
 | `token_` | The $OPA token |
 | `guardian_` | The address that can pause new shields |
-| `exitFee_` | Flat unshield fee, in $OPA wei. It stays in the pool |
+| `exitFeeBps_` | Unshield fee in basis points of each exit, at most 500. It stays in the pool |
 | `cap` | Deposit schedule for $OPA |
 
 A schedule has an initial cap, a step amount, a step interval in seconds and a ceiling.

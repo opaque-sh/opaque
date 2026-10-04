@@ -19,7 +19,7 @@ contract PoolBase is Test {
     address relayer = makeAddr("relayer");
     address bob = makeAddr("bob");
 
-    uint256 constant EXIT_FEE = 5e18; // flat unshield fee, in token wei
+    uint256 constant EXIT_FEE_BPS = 30; // 0.3% unshield fee
 
     function setUp() public virtual {
         hasher = new MockHasher();
@@ -28,7 +28,7 @@ contract PoolBase is Test {
         OpaquePool.CapSchedule memory cap = OpaquePool.CapSchedule({
             initialCap: 1_000e18, stepAmount: 1_000e18, stepInterval: 1 days, maxCap: 10_000e18
         });
-        pool = new OpaquePool(IHasher(address(hasher)), IVerifier(address(verifier)), address(token), guardian, EXIT_FEE, cap);
+        pool = new OpaquePool(IHasher(address(hasher)), IVerifier(address(verifier)), address(token), guardian, EXIT_FEE_BPS, cap);
         token.mint(alice, 100_000e18);
         vm.prank(alice);
         token.approve(address(pool), type(uint256).max);
@@ -188,7 +188,7 @@ contract ShieldTest is PoolBase {
 }
 
 contract TransactTest is PoolBase {
-    function test_exit_splitsPayoutRelayerAndFlatFee() public {
+    function test_exit_splitsPayoutRelayerAndFee() public {
         _shield(100e18);
         uint256 shares = pool.units();
         uint256 root = pool.currentRoot();
@@ -198,21 +198,23 @@ contract TransactTest is PoolBase {
 
         uint256 tokens = pool.tokensForShares(exitShares);
         uint256 relayerTokens = (tokens * relayerShares) / exitShares;
+        uint256 fee = (tokens * EXIT_FEE_BPS) / 10_000;
+        assertGt(fee, 0);
         vm.prank(relayer);
         pool.transact(t, hex"cafe");
 
-        assertEq(token.balanceOf(bob), tokens - relayerTokens - EXIT_FEE);
+        assertEq(token.balanceOf(bob), tokens - relayerTokens - fee);
         assertEq(token.balanceOf(relayer), relayerTokens);
         assertEq(pool.units(), shares - exitShares);
-        // the flat fee stays as backing
-        assertEq(pool.backing(), 100e18 - (tokens - EXIT_FEE));
+        // the fee stays as backing
+        assertEq(pool.backing(), 100e18 - (tokens - fee));
         assertEq(token.balanceOf(address(pool)), pool.backing());
         assertTrue(pool.nullifierSpent(1));
         assertTrue(pool.nullifierSpent(2));
         assertEq(pool.nextIndex(), 3); // 1 shield + 2 outputs
     }
 
-    function test_flatFeeRaisesSharePriceForRemainingHolders() public {
+    function test_feeRaisesSharePriceForRemainingHolders() public {
         _shield(100e18);
         uint256 shares = pool.units();
         uint256 valueBefore = pool.tokensForShares(shares / 2);
@@ -223,13 +225,42 @@ contract TransactTest is PoolBase {
         assertGt(pool.tokensForShares(shares - shares / 2), valueBefore);
     }
 
-    function test_exitSmallerThanFlatFeeReverts() public {
+    function test_relayerFeePlusPoolFeeAboveExitReverts() public {
         _shield(100e18);
         uint256 root = pool.currentRoot();
-        // 1 token worth of shares is below the 5 token flat fee
-        IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, 1e6 * 1e18, _ext(bob, address(0), 0));
+        uint256 exitShares = pool.units() / 100;
+        // the relayer asks for 99.8% of the exit, the pool fee takes 0.3%: together over 100%
+        uint256 relayerShares = (exitShares * 9980) / 10_000;
+        IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, exitShares, _ext(bob, relayer, relayerShares));
+        vm.prank(relayer);
         vm.expectRevert(OpaquePool.FeeTooHigh.selector);
         pool.transact(t, "");
+    }
+
+    function test_tinyExitIsNeverStuck() public {
+        _shield(100e18);
+        uint256 root = pool.currentRoot();
+        // a few shares are worth almost nothing, the fee rounds down with them and the exit still works
+        IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, 3, _ext(bob, address(0), 0));
+        pool.transact(t, "");
+        assertTrue(pool.nullifierSpent(1));
+        assertEq(token.balanceOf(address(pool)), pool.backing());
+    }
+
+    function test_exitFeeForMatchesBps() public view {
+        assertEq(pool.exitFeeBps(), EXIT_FEE_BPS);
+        assertEq(pool.exitFeeFor(1_000e18), 3e18);
+        assertEq(pool.exitFeeFor(0), 0);
+    }
+
+    function test_exitFeeCeilingEnforced() public {
+        OpaquePool.CapSchedule memory cap = OpaquePool.CapSchedule({
+            initialCap: 1e30, stepAmount: 0, stepInterval: 1 days, maxCap: 1e30
+        });
+        uint256 max = pool.MAX_EXIT_FEE_BPS();
+        new OpaquePool(IHasher(address(hasher)), IVerifier(address(verifier)), address(token), guardian, max, cap);
+        vm.expectRevert(bytes("exit fee too high"));
+        new OpaquePool(IHasher(address(hasher)), IVerifier(address(verifier)), address(token), guardian, max + 1, cap);
     }
 
     function test_relayerFeeAboveExitReverts() public {
@@ -357,9 +388,10 @@ contract YieldTest is PoolBase {
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, shares, _ext(bob, address(0), 0));
         pool.transact(t, "");
 
-        // bob gets everything minus the flat fee, which stays behind as backing
-        assertApproxEqAbs(token.balanceOf(bob), 200e18 - EXIT_FEE, 1e12);
-        assertLe(token.balanceOf(bob), 200e18 - EXIT_FEE);
+        // bob gets everything minus the 0.3% fee, which stays behind as backing
+        uint256 fee = (200e18 * EXIT_FEE_BPS) / 10_000;
+        assertApproxEqAbs(token.balanceOf(bob), 200e18 - fee, 1e12);
+        assertLe(token.balanceOf(bob), 200e18 - fee);
         assertEq(pool.units(), 0);
         assertEq(token.balanceOf(address(pool)), pool.backing());
     }
@@ -436,8 +468,6 @@ contract Handler is Test {
     function exitShares(uint256 amount) external {
         if (shareLedger == 0) return;
         amount = bound(amount, 1, shareLedger);
-        // skip exits too small to cover the flat fee, the pool correctly rejects those
-        if (pool.tokensForShares(amount) < pool.exitFee()) return;
         IOpaquePool.Transaction memory t;
         t.root = pool.currentRoot();
         t.nullifiers = [nf++, nf++];

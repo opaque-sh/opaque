@@ -35,8 +35,8 @@ nf   = H(2, nk, cm, i)          // positional nullifier (faerie gold defense)
 ## 4. Fee flows (target)
 
 - Holder share of fees well above 50%, final number set before launch and then fixed.
-- Revenue that does not depend on trading volume: a flat unshield fee in $OPA. There is no shield fee. The unshield fee stays in the pool as backing, so it goes to everyone still shielded, and the pool pays nothing to any address.
-- The unshield fee is flat. An age-based fee would leak note age.
+- Revenue that does not depend on trading volume: an unshield fee in $OPA, a percentage of each exit. There is no shield fee. The unshield fee stays in the pool as backing, so it goes to everyone still shielded, and the pool pays nothing to any address.
+- The unshield fee depends only on the amount being exited, which is public anyway. An age-based fee would leak note age.
 - The pool has no fee sink. Pons trade fees reach the pool only through the harvester (`docs/HARVESTER.md`), which buys $OPA and donates it.
 - Public holders get no yield. They get price support from buybacks and the shrinking float.
 

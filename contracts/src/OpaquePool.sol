@@ -18,8 +18,9 @@ import {MerkleTree} from "./MerkleTree.sol";
 ///      The circuit proves: both inputs belong to `root`, nullifiers are correctly derived, every note carries
 ///      `assetId`, and in0 + in1 == out0 + out1 + exitAmount. `exitAmount` is in shares.
 ///
-///      Fees: there is no shield fee. A flat unshield fee, set at deployment and paid in $OPA, stays in the pool
-///      as backing, so it goes to everyone who is still shielded. Nothing is paid to a team address by the pool.
+///      Fees: there is no shield fee. An unshield fee, a percentage of each exit set at deployment and paid in
+///      $OPA, stays in the pool as backing, so it goes to everyone who is still shielded. Nothing is paid to a
+///      team address by the pool.
 contract OpaquePool is IOpaquePool, MerkleTree {
     // ---------------------------------------------------------------- constants
 
@@ -30,6 +31,11 @@ contract OpaquePool is IOpaquePool, MerkleTree {
 
     /// @dev ERC-4626 style virtual offset for the shares. Makes the donation inflation attack uneconomic.
     uint256 internal constant SHARE_OFFSET = 1e6;
+
+    uint256 public constant BPS = 10_000;
+
+    /// @notice Ceiling for the unshield fee that can be set at deployment: 5%.
+    uint256 public constant MAX_EXIT_FEE_BPS = 500;
 
     // ---------------------------------------------------------------- config (immutable)
 
@@ -44,8 +50,9 @@ contract OpaquePool is IOpaquePool, MerkleTree {
     address public immutable token;
     address public immutable guardian;
     uint256 public immutable launchTime;
-    /// @notice Flat unshield fee in token wei. Stays in the pool as backing for remaining holders.
-    uint256 public immutable exitFee;
+    /// @notice Unshield fee in basis points of the tokens an exit redeems. Stays in the pool as backing for
+    ///         remaining holders.
+    uint256 public immutable exitFeeBps;
 
     CapSchedule public capSchedule;
 
@@ -96,18 +103,19 @@ contract OpaquePool is IOpaquePool, MerkleTree {
         IVerifier verifier_,
         address token_,
         address guardian_,
-        uint256 exitFee_,
+        uint256 exitFeeBps_,
         CapSchedule memory cap
     ) MerkleTree(hasher_) {
         require(token_ != address(0), "zero address");
         require(cap.stepInterval != 0, "zero interval");
         require(cap.initialCap <= cap.maxCap, "cap order");
+        require(exitFeeBps_ <= MAX_EXIT_FEE_BPS, "exit fee too high");
 
         verifier = verifier_;
         token = token_;
         guardian = guardian_;
         launchTime = block.timestamp;
-        exitFee = exitFee_;
+        exitFeeBps = exitFeeBps_;
         capSchedule = cap;
 
         emit AssetRegistered(ASSET_ID, token_, true);
@@ -135,6 +143,11 @@ contract OpaquePool is IOpaquePool, MerkleTree {
     /// @notice Tokens redeemable for `shares` at the current share price.
     function tokensForShares(uint256 shares) public view returns (uint256) {
         return (shares * (backing + 1)) / (units + SHARE_OFFSET);
+    }
+
+    /// @notice The unshield fee, in tokens, for an exit that redeems `tokens`.
+    function exitFeeFor(uint256 tokens) public view returns (uint256) {
+        return (tokens * exitFeeBps) / BPS;
     }
 
     function isKnownRoot(uint256 root) public view override(IOpaquePool, MerkleTree) returns (bool) {
@@ -205,6 +218,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
 
         uint256 tokens;
         uint256 relayerTokens;
+        uint256 fee;
         if (t.exitAmount == 0) {
             if (t.ext.fee != 0) revert BadExit();
         } else {
@@ -213,7 +227,8 @@ contract OpaquePool is IOpaquePool, MerkleTree {
             if (t.ext.fee > t.exitAmount) revert FeeTooHigh();
             tokens = tokensForShares(t.exitAmount);
             relayerTokens = (tokens * t.ext.fee) / t.exitAmount;
-            if (relayerTokens + exitFee > tokens) revert FeeTooHigh();
+            fee = exitFeeFor(tokens);
+            if (relayerTokens + fee > tokens) revert FeeTooHigh();
         }
 
         if (nullifierSpent[t.nullifiers[0]] || nullifierSpent[t.nullifiers[1]]) revert NullifierUsed();
@@ -230,7 +245,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
         emit NoteAdded(i0, t.commitments[0], t.ext.ciphertext0);
         emit NoteAdded(i1, t.commitments[1], t.ext.ciphertext1);
 
-        if (t.exitAmount != 0) _settleExit(t, tokens, relayerTokens);
+        if (t.exitAmount != 0) _settleExit(t, tokens, relayerTokens, fee);
     }
 
     /// @notice The public inputs the verifier sees for `t`. Exposed so clients and tests build the same array.
@@ -257,12 +272,12 @@ contract OpaquePool is IOpaquePool, MerkleTree {
         ) % FIELD_SIZE;
     }
 
-    /// @dev The flat fee tokens never leave: only `tokens - exitFee` is taken out of backing, while all
-    ///      `exitAmount` shares are burned, which lifts the share price for everyone still shielded.
-    function _settleExit(Transaction calldata t, uint256 tokens, uint256 relayerTokens) internal {
-        uint256 payout = tokens - relayerTokens - exitFee;
+    /// @dev The fee tokens never leave: only `tokens - fee` is taken out of backing, while all `exitAmount`
+    ///      shares are burned, which lifts the share price for everyone still shielded.
+    function _settleExit(Transaction calldata t, uint256 tokens, uint256 relayerTokens, uint256 fee) internal {
+        uint256 payout = tokens - relayerTokens - fee;
         units -= t.exitAmount;
-        backing -= tokens - exitFee;
+        backing -= tokens - fee;
         emit Exited(t.nullifiers[0], t.ext.recipient, token, payout);
         if (payout != 0) _push(t.ext.recipient, payout);
         if (relayerTokens != 0) _push(msg.sender, relayerTokens);

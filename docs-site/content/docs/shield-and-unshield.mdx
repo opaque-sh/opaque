@@ -29,6 +29,6 @@ The guardian can pause new shields. Spends, exits and donations always work.
 
 ## Unshielding
 
-An exit is part of a private transaction. It names a recipient and an amount in the proof, so nobody who relays it can change them. Every exit pays a flat fee in $OPA, fixed at deployment. It stays in the pool for the holders who remain. An optional relayer fee can be paid to whoever submits the transaction.
+An exit is part of a private transaction. It names a recipient and an amount in the proof, so nobody who relays it can change them. Every exit pays a small percentage of the amount in $OPA, fixed at deployment. It stays in the pool for the holders who remain. An optional relayer fee can be paid to whoever submits the transaction.
 
 Exits to a contract that acts on the funds (a swap, a payment gateway) are planned and not live. See [Integrations](/docs/integrations).
