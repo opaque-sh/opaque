@@ -6,7 +6,7 @@
 - No upgradeable proxies on the pool.
 - No pausing of withdrawals. The guardian can only pause new deposits.
 - No hidden team allocation or unlabeled team activity.
-- No claim that Opaque hides what you send. It hides who paid, not what you send.
+- No claim that Opaque hides deposits or withdrawals. Shield and exit amounts and addresses are public. It hides what happens between them.
 - No yield promises. Yield comes from fees and can be zero.
 
 ## Invariants (draft, to be tested)

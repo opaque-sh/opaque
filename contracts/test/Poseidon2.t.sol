@@ -63,9 +63,9 @@ contract PoolTreeMatchesCircuitTest is Test {
         MockERC20 token = new MockERC20();
         OpaquePool.CapSchedule memory cap =
             OpaquePool.CapSchedule({initialCap: 10 ether, stepAmount: 10 ether, stepInterval: 1 days, maxCap: 100 ether});
-        pool = new OpaquePool(
-            IHasher(address(hasher)), IVerifier(address(verifier)), address(token), address(0xAA), address(0xBB), 10, 0.0005 ether, cap, cap
-        );
+        pool = new OpaquePool(IHasher(address(hasher)), IVerifier(address(verifier)), address(token), address(0xAA), 0, cap);
+        token.mint(address(this), 1e30);
+        token.approve(address(pool), type(uint256).max);
     }
 
     function test_emptyRootMatchesCircuit() public view {
@@ -73,8 +73,9 @@ contract PoolTreeMatchesCircuitTest is Test {
     }
 
     function test_firstLeafRootMatchesCircuit() public {
-        // 1 ETH shield with a 10 bps fee makes a 0.999 ETH note under asset id 1 with stub 12345.
-        pool.shield{value: 1 ether}(address(0), 12345, 1 ether, "");
+        // Shielding 0.999e12 tokens into an empty pool mints 0.999e18 shares (first deposit x 1e6 offset), so the
+        // note is asset id 1, amount 0.999e18, stub 12345. Same leaf as the circuit vector.
+        pool.shield(12345, 999_000_000_000, "");
         assertEq(pool.currentRoot(), 0x28f0c18ed00c5247f6d5cd0fd3bcc1ce8d4984239fa55e9c4637b0955bf29c18);
     }
 }

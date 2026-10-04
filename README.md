@@ -16,8 +16,8 @@ Domain: opaque.sh | Ticker: $OPA | Status: pre-alpha, design and scaffolding
 
 Opaque is a rebuild of the v0 design (see `legacy/v0`). The note model, vault accounting, ERC-4337 gas abstraction and exit-target pattern carry over. What changes:
 
-- A shared multi-asset pool (ETH and the flagship at launch) instead of a single-token vault.
-- Fee revenue that does not depend only on one token's trading volume.
+- A pool built for $OPA only: no ETH, no shield fee, and a flat unshield fee that stays in the pool for remaining holders. The note format still carries an asset id so more assets could join in a later version.
+- No fee recipient in the pool. Trade fees reach the vault through a harvester (not built).
 - A cleaner story for disclosure (view keys, proof of payment) and for integrators (open exit-target SDK).
 
 Read `docs/DESIGN.md` for the full list of decisions and open questions.

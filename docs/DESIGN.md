@@ -10,7 +10,7 @@ Status: draft. Nothing here is final until the circuit is frozen.
 
 ## 2. Note format
 
-Derived from v0, with the asset id moved inside the commitment.
+Derived from v0, with the asset id moved inside the commitment. The pool is $OPA-only (asset id 1). The field stays in the note so a later pool version can add assets without a new circuit.
 
 ```
 stub = H(opk, rho, r)
@@ -19,25 +19,25 @@ nf   = H(2, nk, cm, i)          // positional nullifier (faerie gold defense)
 ```
 
 - Hash is Poseidon2 over BN254. Merkle tree depth 24, 64-root history.
-- One shared tree for all assets. A larger anonymity set for every asset.
-- A transaction spends and creates notes of one asset. The circuit enforces per-asset conservation.
+- One tree. The anonymity set is the $OPA holders who shield, which is smaller than a multi-asset pool would give. This is a deliberate tradeoff for a smaller audit surface and a simpler pitch.
+- A transaction spends and creates notes of one asset. The circuit enforces per-asset conservation, which is trivially one asset today.
 
 ## 3. Assets
 
 | Asset | Note unit | Accrues donations |
 | --- | --- | --- |
-| ETH | wei, 1:1 | no |
-| $OPA (flagship) | vault shares | yes |
+| $OPA (id 1) | vault shares | yes |
 
-- USDG and other issuer-controlled assets are out. An issuer freeze could poison the pool.
-- ETH notes pay a fee that flows to flagship private holders.
-- The share price of the flagship rises as donations arrive. Shares use virtual shares (V = 1e6) and a locked seed note, as in v0.
+- ETH, USDG and every other token are out. ETH sent to the pool is rejected. Issuer-controlled assets are out on purpose: an issuer freeze could poison the pool.
+- Decision (changed from the earlier draft): the first design had ETH as a second asset to widen the anonymity set and earn fee revenue. It was removed. ETH could be added in a later pool version.
+- The share price rises as donations arrive. Shares use virtual shares (V = 1e6) and a locked seed note, as in v0.
 
 ## 4. Fee flows (target)
 
 - Holder share of fees well above 50%, final number set before launch and then fixed.
-- Non-volume revenue: shield and unshield fees, and the ETH-note fee.
+- Revenue that does not depend on trading volume: a flat unshield fee in $OPA. There is no shield fee. The unshield fee stays in the pool as backing, so it goes to everyone still shielded, and the pool pays nothing to any address.
 - The unshield fee is flat. An age-based fee would leak note age.
+- The pool has no fee sink. Pons trade fees reach the vault only through the harvester (not built), which buys $OPA and donates it.
 - Public holders get no yield. They get price support from buybacks and the shrinking float.
 
 ## 5. Exits
@@ -77,10 +77,10 @@ Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap.
 ## 10. Open questions
 
 1. Circuit freeze: include lineage hooks now, or ship v1 without them.
-2. Asset id width and how new assets are registered without an admin.
+2. If assets are ever added: asset id width and how they are registered without an admin (a new pool version is the likely path).
 3. Gas per private exit. v0 measured 4.7M to 5.2M, which may exceed public bundler limits. With the generated Poseidon2 hasher, one tree insert costs about 24 hashes at roughly 41k gas each (about 1M), so a transaction that adds two notes is about 2M before proof verification. Worth optimizing (a cheaper hash call path, or inserting aligned pairs together) before launch.
 4. Exact holder share and fee levels.
-5. Native ETH handling in `IExitTarget` (send value vs approve).
+5. Exit-target payloads for $OPA only, plus whether ETH ever returns.
 6. Note encryption format and the epoch scheme (see section 11).
 
 ## 11. Research: forward-secure, PQ-ready note encryption

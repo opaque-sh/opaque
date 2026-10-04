@@ -1,0 +1,30 @@
+---
+title: $OPA on Pons
+description: What $OPA is as a token, and how its trade fees reach the vault.
+---
+
+$OPA is created by the Pons launchpad on Robinhood Chain. Opaque adds nothing to the token. It is a plain ERC-20, and the pool is a set of contracts deployed around it.
+
+> [!NOTE]
+> **Not announced yet**
+>
+> The contract address, supply and Pons terms are announced at launch. This page will list them with a way to check each one on-chain.
+
+## What stays standard
+
+- No special transfer rules and no hooks in the token.
+- Wallets, explorers, exchanges and aggregators treat it like any ERC-20.
+- The pool rejects fee-on-transfer tokens, so $OPA must not charge fees on transfer. As a plain ERC-20 it does not.
+
+## Trade fees
+
+Pons collects a creator fee on trades, on the bonding curve and in the pool after graduation. Opaque sets the creator-fee recipient to a fee harvester. The harvester is meant to send most of what it collects to buy $OPA and donate it to the vault, and the rest to the team. The split is not final.
+
+> [!WARNING]
+> **Planned**
+>
+> The fee harvester for $OPA is not built. An earlier harvester exists in the repository under `legacy/v0` for reference only. It is not part of Opaque and must be ported and reviewed before use.
+
+## What buyers see
+
+A buyer on a curve or an exchange sees a normal token with a normal chart. Everything about Opaque shows up only when they shield.

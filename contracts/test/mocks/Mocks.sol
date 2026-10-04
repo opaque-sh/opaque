@@ -31,7 +31,7 @@ contract MockVerifier is IVerifier {
 }
 
 contract MockERC20 {
-    string public name = "Flagship";
+    string public name = "Opaque";
     string public symbol = "OPA";
     uint8 public decimals = 18;
     uint256 public totalSupply;

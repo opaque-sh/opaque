@@ -2,14 +2,12 @@
 pragma solidity ^0.8.26;
 
 /// @title IOpaquePool (draft)
-/// @notice Draft external surface of the multi-asset shielded pool. Nothing here is final. It exists so the
+/// @notice Draft external surface of the $OPA shielded pool. Nothing here is final. It exists so the
 ///         circuit, the client and the contracts can be designed against one shared shape.
 /// @dev Key differences from the v0 PrivateVault:
-///      - Every note commits to an asset id: cm = H(1, stub, assetId, amount).
-///      - A transaction spends and creates notes of ONE asset. Cross-asset moves go through exits and shields
-///        (or, later, an in-circuit epoch swap, see docs/DESIGN.md).
-///      - ETH notes are plain 1:1 amounts. The flagship asset is share-based and accrues donations.
-///      - `address(0)` is the native asset (ETH).
+///      - Every note commits to an asset id: cm = H(1, stub, assetId, amount). Here the only asset is $OPA (id 1),
+///        but the field stays so a future pool version can add assets without a new circuit.
+///      - Notes are share-based and accrue donations.
 interface IOpaquePool {
     struct ExtData {
         address recipient;
@@ -36,19 +34,15 @@ interface IOpaquePool {
     event Donation(address indexed from, address indexed asset, uint256 amount);
     event AssetRegistered(uint256 indexed assetId, address indexed asset, bool shareBased);
 
-    /// @notice Pull `amount` of `asset` (or msg.value for the native asset) into a note completed with `stub`.
-    function shield(address asset, uint256 stub, uint256 amount, bytes calldata ciphertext)
-        external
-        payable
-        returns (uint32 index);
+    /// @notice Pull `amount` $OPA into a note completed with `stub`.
+    function shield(uint256 stub, uint256 amount, bytes calldata ciphertext) external returns (uint32 index);
 
-    /// @notice Spend up to two notes of one asset, create two notes, optionally exit part of the value.
+    /// @notice Spend up to two notes, create two notes, optionally exit part of the value.
     function transact(Transaction calldata t, bytes calldata proof) external;
 
-    /// @notice Add value to the backing of a share-based asset without minting shares.
-    function donate(address asset, uint256 amount) external payable;
+    /// @notice Add $OPA to the backing without minting shares. Raises the share price for every note.
+    function donate(uint256 amount) external;
 
-    function assetIdOf(address asset) external view returns (uint256);
     function isKnownRoot(uint256 root) external view returns (bool);
     function nullifierSpent(uint256 nullifier) external view returns (bool);
 }

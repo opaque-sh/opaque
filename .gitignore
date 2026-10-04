@@ -23,3 +23,8 @@ node_modules/
 .DS_Store
 .idea/
 .vscode/
+
+# docs site
+docs-site/node_modules
+docs-site/.next
+docs-site/.source

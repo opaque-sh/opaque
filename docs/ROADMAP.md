@@ -4,7 +4,7 @@ Order matters. Later items are plans, not promises.
 
 ## Now: private pool and holder yield
 
-- Multi-asset shielded pool (ETH and $OPA).
+- Shielded pool for $OPA. Other assets, ETH included, are a possible later pool version.
 - Private holders of $OPA earn fee share. Buybacks support the price.
 - Invariants page, stage caps, live funds-lost dashboard, scaling bounty.
 

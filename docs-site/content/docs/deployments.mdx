@@ -1,0 +1,32 @@
+---
+title: Deployments
+description: Where the contracts are deployed, and how each is configured.
+---
+
+<Callout type="warn" title="Nothing is deployed">
+No Opaque contract is deployed on any network yet. This page will list addresses once they exist, each with a link to its verified source.
+</Callout>
+
+## What gets deployed
+
+| Contract | Role |
+| --- | --- |
+| `OpaquePool` | The $OPA pool and note tree |
+| `Poseidon2Hasher` | The hash used by the tree and by note commitments |
+| Verifier | Checks proofs of the transact circuit (generated, not yet in the repository) |
+| Fee harvester | Collects the trade fee and buys $OPA for the vault (not built) |
+
+## Constructor of `OpaquePool`
+
+Every value is fixed forever at deployment.
+
+| Parameter | Meaning |
+| --- | --- |
+| `hasher_` | The Poseidon2 hasher |
+| `verifier_` | The proof verifier |
+| `token_` | The $OPA token |
+| `guardian_` | The address that can pause new shields |
+| `exitFee_` | Flat unshield fee, in $OPA wei. It stays in the pool |
+| `cap` | Deposit schedule for $OPA |
+
+A schedule has an initial cap, a step amount, a step interval in seconds and a ceiling.

@@ -1,0 +1,49 @@
+---
+title: The transact circuit
+description: What a proof of a private transaction shows.
+---
+
+One circuit covers every private action: a transfer, an exit, or both. It is written in Noir and proved with UltraHonk.
+
+> [!WARNING]
+> **Status**
+>
+> The circuit compiles and passes its tests. The on-chain verifier has not been generated, no end-to-end proof has been run against the pool, and spends are not yet bound to a wallet key. See [Keys](/docs/keys).
+
+## Notes
+
+```
+stub = H(opk, rho, r)
+cm   = H(1, stub, assetId, amount)
+nf   = H(2, nk, cm, i)
+opk  = H(3, nk)
+```
+
+`H` is Poseidon2. `nk` is the owner's secret nullifier key. `rho` and `r` are random values per note. `i` is the input position, which defends against a duplicate-note attack.
+
+## Public inputs
+
+The pool passes eight values to the verifier, in this order.
+
+| # | Input | Meaning |
+| --- | --- | --- |
+| 0 | `root` | A known root of the note tree |
+| 1 | `nullifier0` | First spent note |
+| 2 | `nullifier1` | Second spent note |
+| 3 | `commitment0` | First new note |
+| 4 | `commitment1` | Second new note |
+| 5 | `assetId` | Asset of every note in the transaction |
+| 6 | `exitAmount` | Value leaving the pool |
+| 7 | `extDataHash` | Binds recipient, relayer, fee and ciphertexts |
+
+`extDataHash` is `keccak256(recipient, caller, fee, keccak(data), keccak(ciphertext0), keccak(ciphertext1))` reduced to the field. Anyone who relays the transaction cannot change what it binds.
+
+## What the proof shows
+
+- Each real input note is in the tree at `root`.
+- The nullifiers are derived correctly, and they differ from each other.
+- Every input and output note carries `assetId`, which sits inside the commitment, so a note cannot be spent as another asset.
+- Inputs equal outputs plus `exitAmount`, for that asset. Value cannot be created.
+- Every amount fits in 120 bits.
+
+An input with zero amount is a dummy. It is not checked against the tree but still produces a nullifier.
