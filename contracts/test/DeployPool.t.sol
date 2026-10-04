@@ -17,9 +17,9 @@ contract DeployPoolTest is Test {
         assertEq(pool.token(), address(token));
         assertEq(pool.guardian(), guardian);
         assertEq(pool.exitFeeBps(), 30);
-        assertEq(pool.depositCap(), 5_000_000e18, "starting cap is 0.5% of 1B");
+        assertEq(pool.depositCap(), 50_000_000e18, "starting cap is 5% of 1B");
         vm.warp(block.timestamp + 7 days);
-        assertEq(pool.depositCap(), 10_000_000e18, "plus 0.5% a week");
+        assertEq(pool.depositCap(), 55_000_000e18, "plus 0.5% a week");
         vm.warp(block.timestamp + 365 days);
         assertEq(pool.depositCap(), 100_000_000e18, "ceiling is 10%");
     }

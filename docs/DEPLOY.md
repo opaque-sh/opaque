@@ -8,7 +8,7 @@ against a local chain. It has not been run on Robinhood Chain.
 | Setting | Value |
 | --- | --- |
 | Unshroud fee | 0.3% of each exit |
-| Deposit cap | starts at 5,000,000 tokens (0.5% of a 1B supply), rises by the same amount every 7 days, ceiling 100,000,000 |
+| Deposit cap | starts at 50,000,000 tokens (5% of a 1B supply), rises by 5,000,000 (0.5%) every 7 days, ceiling 100,000,000 (10%) |
 | Guardian | the deployer, or `GUARDIAN` if set. It can only pause new shrouds |
 
 All of it is fixed once deployed. Change it in the script before you run it, not after.
