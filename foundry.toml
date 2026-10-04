@@ -4,6 +4,8 @@ test = "contracts/test"
 script = "contracts/script"
 out = "out"
 libs = ["lib"]
+remappings = ["v4-core/=lib/v4-core/src/"]
+fs_permissions = [{ access = "read", path = "./lib/v4-core/out" }]
 solc_version = "0.8.26"
 evm_version = "cancun"
 optimizer = true

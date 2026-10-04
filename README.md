@@ -47,12 +47,12 @@ legacy/v0/        Reference copies of the v0 contracts. Not compiled.
 - Ship upgradeable contracts.
 - Promise a yield rate or talk about the token price.
 - Post a number the chain cannot show.
-- Claim privacy we cannot deliver. Prompts, IP addresses and timing can still be visible to services you connect to. Opaque hides who paid, not what you send.
+- Claim privacy we cannot deliver. Prompts, IP addresses and timing can still be visible to services you connect to. Opaque hides what happens between a deposit and a withdrawal. Deposits and withdrawals are public.
 
 ## Develop
 
 ```
-git clone --depth 1 https://github.com/foundry-rs/forge-std lib/forge-std
+tools/setup-libs.sh        # pinned forge-std, v4-core, solmate, and a build of the v4 PoolManager
 forge build
 forge test
 cd circuits/pool && nargo test

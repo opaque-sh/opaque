@@ -42,7 +42,7 @@ The pool passes eight values to the verifier, in this order.
 - Each real input note is in the tree at `root`.
 - The nullifiers are derived correctly, and they differ from each other.
 - Every input and output note carries `assetId`, which sits inside the commitment, so a note cannot be spent as another asset.
-- Inputs equal outputs plus `exitAmount`, for that asset. Value cannot be created.
+- Inputs equal outputs plus `exitAmount`. Value cannot be created.
 - Every amount fits in 120 bits.
 
 An input with zero amount is a dummy. It is not checked against the tree but still produces a nullifier.

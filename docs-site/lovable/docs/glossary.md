@@ -19,7 +19,7 @@ description: Short definitions of terms used in these docs.
 
 **Guardian.** The only address that can pause new shields.
 
-**Harvester.** The contract meant to collect $OPA's trade fees on Pons. Not built.
+**Harvester.** The contract that collects $OPA's trade fees on Pons, pays the team its share and buys $OPA for the pool. Written, not audited or deployed.
 
 **Note.** A private record of value, owned through a secret key.
 

@@ -11,12 +11,12 @@ The holder share and the fee levels are not set. Any number shown anywhere is il
 
 | Source | Where it goes | Status |
 | --- | --- | --- |
-| Creator fee on every $OPA trade on Pons, on the curve and in its pool | Fee harvester, then mostly to buy $OPA for the vault, the rest to the team | Harvester not built |
+| Creator fee on every $OPA trade on Pons, on the curve and in its pool | Fee harvester, then mostly to buy $OPA for the vault, the rest to the team | Written, unaudited |
 | Flat unshield fee, paid in $OPA | Stays in the pool as backing, so it goes to everyone still shielded | In the contract |
 | Shield | No fee | In the contract |
 | Relayer fee | Whoever submits the transaction | In the contract, optional |
 
-The pool itself has no fee recipient. Trade fees reach the vault only through the harvester, which buys $OPA and donates it. The harvester is not built yet.
+The pool itself has no fee recipient. Trade fees reach the vault only through the harvester, which buys $OPA and donates it. The harvester is written and tested against mocks and a real Uniswap v4 pool. It is not audited and has not run against the live Pons contracts yet.
 
 ## How private holders earn
 

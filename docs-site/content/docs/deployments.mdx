@@ -14,7 +14,7 @@ No Opaque contract is deployed on any network yet. This page will list addresses
 | `OpaquePool` | The $OPA pool and note tree |
 | `Poseidon2Hasher` | The hash used by the tree and by note commitments |
 | Verifier | Checks proofs of the transact circuit (generated, not yet in the repository) |
-| Fee harvester | Collects the trade fee and buys $OPA for the vault (not built) |
+| `OpaqueHarvester` | Collects the trade fee, owes the team its share and buys $OPA for the pool (written, unaudited) |
 
 ## Constructor of `OpaquePool`
 
@@ -30,3 +30,24 @@ Every value is fixed forever at deployment.
 | `cap` | Deposit schedule for $OPA |
 
 A schedule has an initial cap, a step amount, a step interval in seconds and a ceiling.
+
+## Constructor of `OpaqueHarvester`
+
+| Parameter | Meaning |
+| --- | --- |
+| `config.poolManager` | The Uniswap v4 pool manager |
+| `config.ponsFactory` | The Pons factory |
+| `config.feeEscrow` | The Pons fee escrow |
+| `config.pool` | The `OpaquePool` that receives the donations |
+| `token_` | $OPA. The constructor reads Pons' record of it and reverts unless Pons launched it and paired it with ETH |
+| `owner_` | May change the team's recipient and propose a successor. Zero for none |
+| `teamRecipient_` | Receives the team's share. Zero lets it accrue until one is set |
+| `teamShareBps_` | The team's share of collected ETH, fixed at deployment |
+
+## Launch order
+
+1. Launch $OPA on Pons. The creator fee recipient is a team wallet at first, and fees collected there are handled by hand.
+2. Deploy the verifier, the hasher and `OpaquePool` with the real $OPA address.
+3. Deploy `OpaqueHarvester` pointing at the pool.
+4. Hand the creator fee recipient to the harvester through Pons. From then on the harvester's own rules decide where fees go.
+

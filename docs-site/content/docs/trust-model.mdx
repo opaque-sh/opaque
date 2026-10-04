@@ -18,13 +18,14 @@ description: What the team cannot do, what is promised, and what is not proven y
 | --- | --- |
 | Pause new shields, through the guardian | Pause spends, exits or donations |
 | Choose parameters before deployment | Change any parameter after |
-| Receive the team share of trade fees, once the harvester exists | Move or freeze anyone's notes |
+| Receive the team share of trade fees, through the harvester | Move or freeze anyone's notes |
+| Change the team's payout address and propose a successor harvester, through the harvester's owner. A proposal is public for 24 hours first. The owner can renounce | Touch any note or any $OPA already donated to the pool |
 
 ## Invariants
 
 These are the properties the pool must always keep. They are being turned into Foundry invariant tests.
 
-1. For each asset, the unspent note value never exceeds the pool's backing of that asset.
+1. The unspent note value never exceeds the pool's backing.
 2. A nullifier can be spent once.
 3. Only a known root can be spent against.
 4. The exit amount never exceeds the value of the spent notes minus fees.

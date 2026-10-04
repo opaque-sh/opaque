@@ -14,7 +14,7 @@ On most blockchains, anyone can look up an address and see what it holds and eve
 
 - **Private when you choose**: Shield $OPA into notes. Balances and who pays whom inside the pool stay hidden, proven with zero-knowledge proofs. Shielding and withdrawing are public transactions.
 - **Trades like any token**: $OPA is a plain ERC-20. Wallets, exchanges and aggregators work unchanged.
-- **Paid to stay private**: Fees flow to the $OPA vault behind private notes. Only notes earn. Public $OPA does not. The fee keeper that routes trade fees is not built yet.
+- **Paid to stay private**: Fees flow to the $OPA vault behind private notes. Only notes earn. Public $OPA does not. The fee harvester that routes trade fees is written but not audited or deployed.
 - **No operator**: The pool cannot be upgraded and has no admin. The one pause stops only new deposits, never spends or exits.
 
 ## How it fits together

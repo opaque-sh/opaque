@@ -18,12 +18,16 @@ $OPA is created by the Pons launchpad on Robinhood Chain. Opaque adds nothing to
 
 ## Trade fees
 
-Pons collects a creator fee on trades, on the bonding curve and in the pool after graduation. Opaque sets the creator-fee recipient to a fee harvester. The harvester is meant to send most of what it collects to buy $OPA and donate it to the vault, and the rest to the team. The split is not final.
+Pons collects a creator fee on trades, on the bonding curve and in the pool after graduation. Opaque sets the creator-fee recipient to a fee harvester. The harvester owes the team a fixed share and spends the rest on $OPA, which it donates to the pool. The split is not final.
 
 > [!WARNING]
-> **Planned**
+> **Not audited**
 >
-> The fee harvester for $OPA is not built. An earlier harvester exists in the repository under `legacy/v0` for reference only. It is not part of Opaque and must be ported and reviewed before use.
+> The harvester is written and tested against mocks and a real Uniswap v4 pool, not against the live Pons contracts. It is not audited and not deployed.
+
+## Right after launch
+
+For a short period after launch the creator fee recipient is a team wallet, and the team handles buybacks and burns by hand. Anything collected that way can be donated to the pool later with `donate`, which anyone can call. Then the recipient moves to the harvester through Pons.
 
 ## What buyers see
 
