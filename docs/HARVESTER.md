@@ -24,23 +24,39 @@ Written and tested (28 tests against mocks of the Pons contracts, 5 against a re
 
 ## Check before deploying
 
-The Pons signatures were taken from the Pons v2 docs and the v0 documentation, not from the verified ABI. Confirm each against the verified contracts on the explorer.
+The Pons signatures were first taken from the Pons v2 docs and the v0 documentation. On 2026-10-04 the factory, meme hook, fee escrow and curve were compared with their verified ABIs.
 
-| Call | Where | Source |
+| Call | Where | Status |
 | --- | --- | --- |
-| `getLaunchedToken(address)` returning the struct in `pons/IPons.sol` (field order matters) | factory | Pons v2 docs |
-| `memeHook()` | factory | v0 docs |
-| `transferCreatorFeeRecipient(address token, address newRecipient)` | factory | Pons v2 docs, v0 docs |
-| `buy(uint256 quoteIn, uint256 minTokensOut, address recipient)` payable | curve | Pons v2 docs |
-| `getReserves()`, `feeBps()`, `creatorTaxBps()`, `readyToGraduate()`, `sweepFees(uint256)` | curve | Pons v2 docs |
-| `sweepPoolFees(bytes32 poolId, uint256, uint256)` | meme hook | Pons v2 docs (poolId type is assumed) |
-| `balanceOf(address)`, `claim()` | fee escrow | Pons v2 docs |
+| `getLaunchedToken(address)` and the field order of the struct in `pons/IPons.sol` | factory | Matches the verified ABI |
+| `memeHook()` | factory | Matches |
+| `transferCreatorFeeRecipient(address token, address newRecipient)` | factory | Matches. Reverts `NotCreatorFeeRecipient` for anyone but the current recipient |
+| `sweepPoolFees(bytes32 poolId, uint256, uint256)` | meme hook | Matches (`PoolId` is `bytes32`) |
+| `balanceOf(address)`, `claim()` | fee escrow | Match. `claim` is overloaded (`claim(uint256)` also exists), the no-argument form is the one used |
+| `buy(uint256 quoteIn, uint256 minTokensOut, address recipient)` payable | curve | Matches the verified ABI |
+| `getReserves()`, `feeBps()`, `creatorTaxBps()`, `readyToGraduate()`, `sweepFees(uint256)` | curve | Matches the verified ABI |
 
-If `sweepPoolFees` or `sweepFees` has a different signature, the `try` will swallow the failure and fees will still be claimable once Pons sweeps them, but the harvester will not trigger the sweep itself.
+Things the ABIs show that matter:
 
-Two more things to confirm on a live token: the curve's real price formula and snipe tax (the harvester only relies on `minTokensOut`, so a wrong assumption makes buys revert and skip, never overpay), and that the Pons v4 pool uses the key `(native ETH, token, poolFee, tickSpacing, memeHook)`.
+- **Sweeps may need Pons' operator.** The hook has `InternalSwapRequiresOperator` and `NotFeeSweepOperator`. A sweep that needs an internal swap (turning token-denominated fees into ETH, or running a buyback) can only be run by Pons' operator. The harvester's sweep sits in a `try`, so it simply fails and the fees wait until the operator sweeps them. Claiming works either way.
+- **Pons can propose a new fee recipient.** The factory has `setCreatorFeeRecipient`, `pendingCreatorFeeRecipient(token)`, `executeCreatorFeeRecipientChange` and `cancelCreatorFeeRecipientChange`, with a timelock and an execution window. The harvester has no way to cancel a proposal. Watch `pendingCreatorFeeRecipient(token)` after launch. Fees already credited to the harvester stay claimable.
+- **Pons' own buyback toggle.** `setBuybackEnabled(token, enabled)` exists on the factory and reverts `NotBuybackController` for others. It is not yet confirmed who the controller is. If it is the original deployer wallet, that wallet could switch buybacks on later and divert part of the creator share into Pons' vest. Check the function's source on the explorer before launch, and check `getLaunchedToken(token).buybackEnabled` after.
+- **Pool fees.** The hook has its own `hookFeeBps` and can take a fee on swaps. The harvester uses the swap's returned balance delta, so the fee is already counted, but it is only tested here against a pool with no hook.
+- **Not yet tried on a live pool.** The graduated pool's key and whether its hook accepts a swap from a contract with empty `hookData` are untested. Run one small buy on a fork or testnet before deploying for real.
+
+Two more things to confirm on a live token: the curve's real price formula and snipe tax (the harvester relies only on `minTokensOut`, so a wrong assumption makes buys revert and skip, never overpay), and that the Pons v4 pool uses the key `(native ETH, token, poolFee, tickSpacing, memeHook)`.
 
 Read the $OPA terms off the factory after launch: `getLaunchedToken(token)` should show `pairToken == address(0)`, `buybackEnabled == false` and `creatorTaxBps` as intended.
+
+## Fork test against live Pons
+
+`contracts/test/fork/PonsFork.t.sol` runs the harvester against the live Pons contracts on a fork, using a token that has already graduated. It is skipped unless `ROBINHOOD_RPC` is set:
+
+```
+ROBINHOOD_RPC=<rpc url> forge test --match-path contracts/test/fork/PonsFork.t.sol -vv
+```
+
+It checks that the constructor reads the real record, that the harvester gets a live price (so the pool key is right), and that a real buy through Pons' pool and hook fills and is donated to a throwaway pool. Set `PONS_TOKEN` to test another token. It has not been run yet.
 
 ## Launch order
 
