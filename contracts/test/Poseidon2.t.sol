@@ -73,9 +73,9 @@ contract PoolTreeMatchesCircuitTest is Test {
     }
 
     function test_firstLeafRootMatchesCircuit() public {
-        // Shielding 0.999e12 tokens into an empty pool mints 0.999e18 shares (first deposit x 1e6 offset), so the
+        // Shrouding 0.999e12 tokens into an empty pool mints 0.999e18 shares (first deposit x 1e6 offset), so the
         // note is asset id 1, amount 0.999e18, stub 12345. Same leaf as the circuit vector.
-        pool.shield(12345, 999_000_000_000, "");
+        pool.shroud(12345, 999_000_000_000, "");
         assertEq(pool.currentRoot(), 0x28f0c18ed00c5247f6d5cd0fd3bcc1ce8d4984239fa55e9c4637b0955bf29c18);
     }
 }

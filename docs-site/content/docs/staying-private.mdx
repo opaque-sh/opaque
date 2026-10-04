@@ -7,11 +7,11 @@ The pool can hide what happens inside it. It cannot hide what you do around it. 
 
 ## Match by amount and timing
 
-If you shield 1,500 and someone exits 1,500 a minute later, an observer can guess they are linked. Wait, and use different amounts when you can. The longer value stays in the pool, and the more other activity there is, the harder a match gets.
+If you shroud 1,500 and someone exits 1,500 a minute later, an observer can guess they are linked. Wait, and use different amounts when you can. The longer value stays in the pool, and the more other activity there is, the harder a match gets.
 
 ## Exit to a fresh address
 
-If you exit to the address you shielded from, you have connected your two public actions. Use a new address for exits, and do not fund it from your main wallet.
+If you exit to the address you shrouded from, you have connected your two public actions. Use a new address for exits, and do not fund it from your main wallet.
 
 ## The pool size matters
 

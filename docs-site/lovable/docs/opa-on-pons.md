@@ -31,4 +31,4 @@ For a short period after launch the creator fee recipient is a team wallet, and 
 
 ## What buyers see
 
-A buyer on a curve or an exchange sees a normal token with a normal chart. Everything about Opaque shows up only when they shield.
+A buyer on a curve or an exchange sees a normal token with a normal chart. Everything about Opaque shows up only when they shroud.

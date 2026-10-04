@@ -4,7 +4,7 @@ Order matters. Later items are plans, not promises.
 
 ## Now: private pool and holder yield
 
-- Shielded pool for $OPA. Other assets, ETH included, are a possible later pool version.
+- Shrouded pool for $OPA. Other assets, ETH included, are a possible later pool version.
 - Private holders of $OPA earn fee share. Buybacks support the price.
 - Invariants page, stage caps, live funds-lost dashboard, scaling bounty.
 
@@ -32,5 +32,5 @@ Order matters. Later items are plans, not promises.
 ## Cut
 
 - Private credit score.
-- Shielded backer stakes.
+- Shrouded backer stakes.
 - Private governance.

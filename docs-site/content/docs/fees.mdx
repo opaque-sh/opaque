@@ -12,8 +12,8 @@ The holder share and the fee levels are not set. Any number shown anywhere is il
 | Source | Where it goes | Status |
 | --- | --- | --- |
 | Creator fee on every $OPA trade on Pons, on the curve and in its pool | Fee harvester, then mostly to buy $OPA for the vault, the rest to the team | Written, unaudited |
-| Unshield fee, a percentage of each exit, paid in $OPA | Stays in the pool as backing, so it goes to everyone still shielded | In the contract |
-| Shield | No fee | In the contract |
+| Unshroud fee, a percentage of each exit, paid in $OPA | Stays in the pool as backing, so it goes to everyone still shrouded | In the contract |
+| Shroud | No fee | In the contract |
 | Relayer fee | Whoever submits the transaction | In the contract, optional |
 
 The pool itself has no fee recipient. Trade fees reach the vault only through the harvester, which buys $OPA and donates it. The harvester is written and tested against mocks and a real Uniswap v4 pool. It is not audited and has not run against the live Pons contracts yet.
@@ -31,8 +31,8 @@ Anyone can donate to the vault. The virtual offset makes the classic share-infla
 
 ## Who does not earn
 
-Public $OPA does not earn. It gets price support from buybacks and from a float that shrinks as more $OPA is shielded. Yield comes only from fees. It can be zero.
+Public $OPA does not earn. It gets price support from buybacks and from a float that shrinks as more $OPA is shrouded. Yield comes only from fees. It can be zero.
 
-## The unshield fee is a percentage
+## The unshroud fee is a percentage
 
 An exit fee that grew with a note's age would reveal the note's age. Opaque's fee depends only on the amount being exited, which is public anyway, so it reveals nothing. It is a percentage set at deployment, so its cost scales with whatever $OPA is worth, and a small exit can never owe more than it holds.

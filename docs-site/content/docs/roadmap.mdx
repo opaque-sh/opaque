@@ -5,7 +5,7 @@ description: What is planned, in order. Plans, not promises.
 
 ## Now: private pool and holder yield
 
-- A shielded pool for $OPA.
+- A shrouded pool for $OPA.
 - Private $OPA holders earn a share of fees. Buybacks support the price.
 - An invariants page, stage caps, a live funds-lost dashboard and a scaling bounty.
 
@@ -32,4 +32,4 @@ description: What is planned, in order. Plans, not promises.
 
 ## Cut
 
-Private credit score, shielded backer stakes and private governance.
+Private credit score, shrouded backer stakes and private governance.

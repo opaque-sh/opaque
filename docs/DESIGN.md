@@ -4,7 +4,7 @@ Status: draft. Nothing here is final until the circuit is frozen.
 
 ## 1. Goals
 
-- A shielded pool where holders of the flagship token ($OPA) who stay private earn a share of protocol fees.
+- A shrouded pool where holders of the flagship token ($OPA) who stay private earn a share of protocol fees.
 - Immutable, no-admin core. The guardian can only pause new deposits.
 - Open exit targets so private value can reach swaps, payments and other vaults without a trusted relayer.
 
@@ -19,7 +19,7 @@ nf   = H(2, nk, cm, i)          // positional nullifier (faerie gold defense)
 ```
 
 - Hash is Poseidon2 over BN254. Merkle tree depth 24, 64-root history.
-- One tree. The anonymity set is the $OPA holders who shield, which is smaller than a multi-asset pool would give. This is a deliberate tradeoff for a smaller audit surface and a simpler pitch.
+- One tree. The anonymity set is the $OPA holders who shroud, which is smaller than a multi-asset pool would give. This is a deliberate tradeoff for a smaller audit surface and a simpler pitch.
 - A transaction spends and creates notes of one asset. The circuit enforces per-asset conservation, which is trivially one asset today.
 
 ## 3. Assets
@@ -35,8 +35,8 @@ nf   = H(2, nk, cm, i)          // positional nullifier (faerie gold defense)
 ## 4. Fee flows (target)
 
 - Holder share of fees well above 50%, final number set before launch and then fixed.
-- Revenue that does not depend on trading volume: an unshield fee in $OPA, a percentage of each exit. There is no shield fee. The unshield fee stays in the pool as backing, so it goes to everyone still shielded, and the pool pays nothing to any address.
-- The unshield fee depends only on the amount being exited, which is public anyway. An age-based fee would leak note age.
+- Revenue that does not depend on trading volume: an unshroud fee in $OPA, a percentage of each exit. There is no shroud fee. The unshroud fee stays in the pool as backing, so it goes to everyone still shrouded, and the pool pays nothing to any address.
+- The unshroud fee depends only on the amount being exited, which is public anyway. An age-based fee would leak note age.
 - The pool has no fee sink. Pons trade fees reach the pool only through the harvester (`docs/HARVESTER.md`), which buys $OPA and donates it.
 - Public holders get no yield. They get price support from buybacks and the shrinking float.
 
@@ -63,11 +63,11 @@ Hard problem: lineage through note merge and split. Preferred design is an exit-
 
 ## 8. In-pool swaps (research)
 
-Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap. Until then, cross-asset moves are exit then shield through a target.
+Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap. Until then, cross-asset moves are exit then shroud through a target.
 
 ## 9. Implementation status
 
-- `contracts/src/OpaquePool.sol`: shield, transact, donate, fee collection, caps, guardian pause. Tested with a mock hasher and verifier.
+- `contracts/src/OpaquePool.sol`: shroud, transact, donate, fee collection, caps, guardian pause. Tested with a mock hasher and verifier.
 - `contracts/src/Poseidon2Hasher.sol`: generated Poseidon2 (BN254, t = 4). Matches the circuit on every reference vector, and the pool's tree roots match the circuit's Merkle function.
 - `circuits/pool/scripts/build_verifier.sh`: proof and verifier pipeline. Not run end to end yet (the trusted-setup download was blocked where it was written).
 - `circuits/pool`: asset-aware spend circuit. Compiles and passes its tests. No wallet-key binding yet.
@@ -123,7 +123,7 @@ An alternative idea is to expire nullifiers after N epochs and force notes to be
 
 The pool is immutable, so a future proof system means a new pool version. Design for this now:
 
-- A versioned pool. The next version's circuit accepts nullifiers from the old pool, so users can migrate inside the proof without a public unshield and reshield.
+- A versioned pool. The next version's circuit accepts nullifiers from the old pool, so users can migrate inside the proof without a public unshroud and reshroud.
 - Candidate: a hash-based proof system (STARK style). Verification cost on the EVM has to be checked before committing.
 - Do not use "post-quantum" as a marketing claim until the commitments, the proofs and the encryption all are.
 
@@ -131,5 +131,5 @@ The pool is immutable, so a future proof system means a new pool version. Design
 
 - **Replacing the Merkle-Poseidon pool with lattice ring signatures.** Smaller anonymity sets than a full-pool SNARK, signatures of tens to hundreds of KB, no EVM precompiles, and it discards the circuit and tests built so far.
 - **Dynamic security tiers chosen by a threat oracle.** Needs an admin, which contradicts the no-admin core, and visible tiers split the anonymity set.
-- **FHE on shielded balances.** Not practical on the EVM and someone still has to compute and decrypt.
+- **FHE on shrouded balances.** Not practical on the EVM and someone still has to compute and decrypt.
 - **Notary-set bridges.** Reintroduce a trusted set. A ZK light-client proof is the better primitive.

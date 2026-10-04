@@ -19,7 +19,7 @@ contract PoolBase is Test {
     address relayer = makeAddr("relayer");
     address bob = makeAddr("bob");
 
-    uint256 constant EXIT_FEE_BPS = 30; // 0.3% unshield fee
+    uint256 constant EXIT_FEE_BPS = 30; // 0.3% unshroud fee
 
     function setUp() public virtual {
         hasher = new MockHasher();
@@ -53,9 +53,9 @@ contract PoolBase is Test {
         t.ext = e;
     }
 
-    function _shield(uint256 amount) internal returns (uint32) {
+    function _shroud(uint256 amount) internal returns (uint32) {
         vm.prank(alice);
-        return pool.shield(12345, amount, hex"01");
+        return pool.shroud(12345, amount, hex"01");
     }
 }
 
@@ -91,7 +91,7 @@ contract TreeTest is PoolBase {
         uint256[] memory leaves = new uint256[](3);
         for (uint256 i = 0; i < 3; i++) {
             uint256 before = pool.units();
-            _shield(10e18);
+            _shroud(10e18);
             leaves[i] = hasher.hash4(1, 12345, 1, pool.units() - before);
         }
         assertEq(pool.currentRoot(), _rootOf(leaves));
@@ -99,32 +99,32 @@ contract TreeTest is PoolBase {
     }
 
     function test_rootHistoryWindow() public {
-        _shield(1e18);
+        _shroud(1e18);
         uint256 first = pool.currentRoot();
         assertTrue(pool.isKnownRoot(first));
-        for (uint256 i = 0; i < 63; i++) _shieldSmall();
+        for (uint256 i = 0; i < 63; i++) _shroudSmall();
         assertTrue(pool.isKnownRoot(first));
-        _shieldSmall();
+        _shroudSmall();
         assertFalse(pool.isKnownRoot(first));
     }
 
-    function _shieldSmall() internal {
+    function _shroudSmall() internal {
         vm.prank(alice);
-        pool.shield(1, 1e15, "");
+        pool.shroud(1, 1e15, "");
     }
 }
 
-contract ShieldTest is PoolBase {
+contract ShroudTest is PoolBase {
     function test_firstDepositIsOneToOneTimesOffset() public {
-        uint32 idx = _shield(100e18);
+        uint32 idx = _shroud(100e18);
         assertEq(idx, 0);
         assertEq(pool.backing(), 100e18);
         assertEq(pool.units(), (100e18 * 1e6) / 1);
         assertEq(token.balanceOf(address(pool)), 100e18);
     }
 
-    function test_noShieldFee() public {
-        _shield(100e18);
+    function test_noShroudFee() public {
+        _shroud(100e18);
         assertEq(token.balanceOf(address(pool)), 100e18);
         assertEq(pool.backing(), 100e18);
     }
@@ -132,24 +132,24 @@ contract ShieldTest is PoolBase {
     function test_stubMustBeInField() public {
         vm.prank(alice);
         vm.expectRevert(OpaquePool.NotInField.selector);
-        pool.shield(FIELD, 1e18, "");
+        pool.shroud(FIELD, 1e18, "");
     }
 
     function test_zeroAmountReverts() public {
         vm.prank(alice);
         vm.expectRevert(OpaquePool.BadAmount.selector);
-        pool.shield(1, 0, "");
+        pool.shroud(1, 0, "");
     }
 
     function test_capEnforcedAndRisesOnSchedule() public {
         assertEq(pool.depositCap(), 1_000e18);
         vm.prank(alice);
         vm.expectRevert(OpaquePool.CapExceeded.selector);
-        pool.shield(1, 1_001e18, "");
+        pool.shroud(1, 1_001e18, "");
 
         vm.warp(block.timestamp + 1 days);
         assertEq(pool.depositCap(), 2_000e18);
-        _shield(1_001e18);
+        _shroud(1_001e18);
 
         vm.warp(block.timestamp + 365 days);
         assertEq(pool.depositCap(), 10_000e18);
@@ -164,7 +164,7 @@ contract ShieldTest is PoolBase {
         pool.setDepositsPaused(true);
         vm.prank(alice);
         vm.expectRevert(OpaquePool.DepositsPaused.selector);
-        pool.shield(1, 1e18, "");
+        pool.shroud(1, 1e18, "");
 
         // transfers still work while paused
         uint256 root = pool.currentRoot();
@@ -176,7 +176,7 @@ contract ShieldTest is PoolBase {
         token.setFeeBps(100);
         vm.prank(alice);
         vm.expectRevert(OpaquePool.FeeOnTransferToken.selector);
-        pool.shield(1, 10e18, "");
+        pool.shroud(1, 10e18, "");
     }
 
     function test_ethRejectedWhenSentDirectly() public {
@@ -189,7 +189,7 @@ contract ShieldTest is PoolBase {
 
 contract TransactTest is PoolBase {
     function test_exit_splitsPayoutRelayerAndFee() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 shares = pool.units();
         uint256 root = pool.currentRoot();
         uint256 exitShares = shares / 2; // about 50 tokens
@@ -211,11 +211,11 @@ contract TransactTest is PoolBase {
         assertEq(token.balanceOf(address(pool)), pool.backing());
         assertTrue(pool.nullifierSpent(1));
         assertTrue(pool.nullifierSpent(2));
-        assertEq(pool.nextIndex(), 3); // 1 shield + 2 outputs
+        assertEq(pool.nextIndex(), 3); // 1 shroud + 2 outputs
     }
 
     function test_feeRaisesSharePriceForRemainingHolders() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 shares = pool.units();
         uint256 valueBefore = pool.tokensForShares(shares / 2);
         uint256 root = pool.currentRoot();
@@ -226,7 +226,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_relayerFeePlusPoolFeeAboveExitReverts() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         uint256 exitShares = pool.units() / 100;
         // the relayer asks for 99.8% of the exit, the pool fee takes 0.3%: together over 100%
@@ -238,7 +238,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_tinyExitIsNeverStuck() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         // a few shares are worth almost nothing, the fee rounds down with them and the exit still works
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, 3, _ext(bob, address(0), 0));
@@ -264,7 +264,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_relayerFeeAboveExitReverts() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, 1e24, _ext(bob, address(0), 1e24 + 1));
         vm.expectRevert(OpaquePool.FeeTooHigh.selector);
@@ -272,7 +272,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_exitMoreThanAllSharesReverts() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, pool.units() + 1, _ext(bob, address(0), 0));
         vm.expectRevert(OpaquePool.InsufficientBacking.selector);
@@ -287,7 +287,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_doubleSpendReverts() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, pool.units() / 2, _ext(bob, address(0), 0));
         pool.transact(t, "");
@@ -343,7 +343,7 @@ contract TransactTest is PoolBase {
     }
 
     function test_privateTransferInsertsTwoNotesWithoutExit() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 root = pool.currentRoot();
         IOpaquePool.Transaction memory t = _tx(root, 1, 2, 1, 0, _ext(address(0), address(0), 0));
         uint256 backing = pool.backing();
@@ -376,7 +376,7 @@ contract TransactTest is PoolBase {
 
 contract YieldTest is PoolBase {
     function test_donationRaisesSharePriceForExit() public {
-        _shield(100e18);
+        _shroud(100e18);
         uint256 shares = pool.units();
 
         // donate another 100 tokens. Note holders now own 200 tokens (minus rounding).
@@ -397,11 +397,11 @@ contract YieldTest is PoolBase {
     }
 
     function test_laterDepositorDoesNotStealDonations() public {
-        _shield(100e18);
+        _shroud(100e18);
         vm.prank(alice);
         pool.donate(100e18);
         uint256 sharesBefore = pool.units();
-        _shield(200e18); // buys in at the new price, so gets about half the first holder's shares
+        _shroud(200e18); // buys in at the new price, so gets about half the first holder's shares
         uint256 minted = pool.units() - sharesBefore;
         assertApproxEqRel(minted, sharesBefore, 1e6); // within 1e-12
     }
@@ -421,12 +421,12 @@ contract YieldTest is PoolBase {
     }
 
     function test_inflationAttackIsUneconomic() public {
-        // attacker donates before anyone deposits, victim then shields a smaller amount
+        // attacker donates before anyone deposits, victim then shrouds a smaller amount
         vm.startPrank(alice);
         pool.donate(500e18);
         vm.stopPrank();
         uint256 sharesBefore = pool.units();
-        _shield(100e18);
+        _shroud(100e18);
         uint256 minted = pool.units() - sharesBefore;
         assertGt(minted, 0);
         // victim's shares are worth at least 99.9% of what they put in
@@ -450,12 +450,12 @@ contract Handler is Test {
         t.approve(address(p), type(uint256).max);
     }
 
-    function shield(uint256 amount) external {
+    function shroud(uint256 amount) external {
         amount = bound(amount, 1e12, 100e18);
         if (pool.backing() + amount > pool.depositCap()) return;
         uint256 before = pool.units();
         vm.prank(user);
-        pool.shield(1, amount, "");
+        pool.shroud(1, amount, "");
         shareLedger += pool.units() - before;
     }
 

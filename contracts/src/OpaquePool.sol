@@ -7,10 +7,10 @@ import {IVerifier} from "./interfaces/IVerifier.sol";
 import {MerkleTree} from "./MerkleTree.sol";
 
 /// @title OpaquePool
-/// @notice Shielded pool for one token, $OPA. Notes are share-based and accrue donations, so shielded holders earn.
+/// @notice Shrouded pool for one token, $OPA. Notes are share-based and accrue donations, so shrouded holders earn.
 ///         Every note still commits to an asset id (here always 1) so more assets could join a future pool version
 ///         without changing the circuit.
-/// @dev No owner, no upgrade path, no way to move user funds. The guardian can only pause new shields.
+/// @dev No owner, no upgrade path, no way to move user funds. The guardian can only pause new shrouds.
 ///      Exits always work. Draft: unaudited, and the circuit it verifies against has no generated verifier yet.
 ///
 ///      Public inputs to the verifier, in order:
@@ -18,8 +18,8 @@ import {MerkleTree} from "./MerkleTree.sol";
 ///      The circuit proves: both inputs belong to `root`, nullifiers are correctly derived, every note carries
 ///      `assetId`, and in0 + in1 == out0 + out1 + exitAmount. `exitAmount` is in shares.
 ///
-///      Fees: there is no shield fee. An unshield fee, a percentage of each exit set at deployment and paid in
-///      $OPA, stays in the pool as backing, so it goes to everyone who is still shielded. Nothing is paid to a
+///      Fees: there is no shroud fee. An unshroud fee, a percentage of each exit set at deployment and paid in
+///      $OPA, stays in the pool as backing, so it goes to everyone who is still shrouded. Nothing is paid to a
 ///      team address by the pool.
 contract OpaquePool is IOpaquePool, MerkleTree {
     // ---------------------------------------------------------------- constants
@@ -34,7 +34,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
 
     uint256 public constant BPS = 10_000;
 
-    /// @notice Ceiling for the unshield fee that can be set at deployment: 5%.
+    /// @notice Ceiling for the unshroud fee that can be set at deployment: 5%.
     uint256 public constant MAX_EXIT_FEE_BPS = 500;
 
     // ---------------------------------------------------------------- config (immutable)
@@ -50,7 +50,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
     address public immutable token;
     address public immutable guardian;
     uint256 public immutable launchTime;
-    /// @notice Unshield fee in basis points of the tokens an exit redeems. Stays in the pool as backing for
+    /// @notice Unshroud fee in basis points of the tokens an exit redeems. Stays in the pool as backing for
     ///         remaining holders.
     uint256 public immutable exitFeeBps;
 
@@ -145,7 +145,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
         return (shares * (backing + 1)) / (units + SHARE_OFFSET);
     }
 
-    /// @notice The unshield fee, in tokens, for an exit that redeems `tokens`.
+    /// @notice The unshroud fee, in tokens, for an exit that redeems `tokens`.
     function exitFeeFor(uint256 tokens) public view returns (uint256) {
         return (tokens * exitFeeBps) / BPS;
     }
@@ -156,16 +156,16 @@ contract OpaquePool is IOpaquePool, MerkleTree {
 
     // ---------------------------------------------------------------- guardian
 
-    /// @notice Pause or resume NEW shields. Exits and donations are never affected.
+    /// @notice Pause or resume NEW shrouds. Exits and donations are never affected.
     function setDepositsPaused(bool paused) external {
         if (msg.sender != guardian) revert NotGuardian();
         depositsPaused = paused;
     }
 
-    // ---------------------------------------------------------------- shield
+    // ---------------------------------------------------------------- shroud
 
     /// @inheritdoc IOpaquePool
-    function shield(uint256 stub, uint256 amount, bytes calldata ciphertext)
+    function shroud(uint256 stub, uint256 amount, bytes calldata ciphertext)
         external
         nonReentrant
         returns (uint32 index)
@@ -187,7 +187,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
         _recordRoot();
 
         emit NoteAdded(index, cm, ciphertext);
-        emit Shielded(msg.sender, index, token, amount, minted);
+        emit Shrouded(msg.sender, index, token, amount, minted);
     }
 
     // ---------------------------------------------------------------- donate
@@ -273,7 +273,7 @@ contract OpaquePool is IOpaquePool, MerkleTree {
     }
 
     /// @dev The fee tokens never leave: only `tokens - fee` is taken out of backing, while all `exitAmount`
-    ///      shares are burned, which lifts the share price for everyone still shielded.
+    ///      shares are burned, which lifts the share price for everyone still shrouded.
     function _settleExit(Transaction calldata t, uint256 tokens, uint256 relayerTokens, uint256 fee) internal {
         uint256 payout = tokens - relayerTokens - fee;
         units -= t.exitAmount;

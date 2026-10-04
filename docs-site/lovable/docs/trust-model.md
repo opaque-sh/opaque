@@ -9,14 +9,14 @@ description: What the team cannot do, what is promised, and what is not proven y
 - No upgradeable proxies on the pool.
 - No pausing of withdrawals. The guardian can only pause new deposits.
 - No hidden team allocation or unlabeled team activity.
-- No claim that Opaque hides deposits or withdrawals. Shield and exit amounts and addresses are public. It hides what happens between them.
+- No claim that Opaque hides deposits or withdrawals. Shroud and exit amounts and addresses are public. It hides what happens between them.
 - No yield promises. Yield comes from fees and can be zero.
 
 ## What the team can and cannot do
 
 | Can | Cannot |
 | --- | --- |
-| Pause new shields, through the guardian | Pause spends, exits or donations |
+| Pause new shrouds, through the guardian | Pause spends, exits or donations |
 | Choose parameters before deployment | Change any parameter after |
 | Receive the team share of trade fees, through the harvester | Move or freeze anyone's notes |
 | Change the team's payout address and propose a successor harvester, through the harvester's owner. A proposal is public for 24 hours first. The owner can renounce | Touch any note or any $OPA already donated to the pool |

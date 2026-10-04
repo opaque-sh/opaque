@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 /// @title IOpaquePool (draft)
-/// @notice Draft external surface of the $OPA shielded pool. Nothing here is final. It exists so the
+/// @notice Draft external surface of the $OPA shrouded pool. Nothing here is final. It exists so the
 ///         circuit, the client and the contracts can be designed against one shared shape.
 /// @dev Key differences from the v0 PrivateVault:
 ///      - Every note commits to an asset id: cm = H(1, stub, assetId, amount). Here the only asset is $OPA (id 1),
@@ -29,13 +29,13 @@ interface IOpaquePool {
 
     event NoteAdded(uint256 indexed index, uint256 commitment, bytes ciphertext);
     event NullifierSpent(uint256 indexed nullifier);
-    event Shielded(address indexed from, uint256 indexed index, address indexed asset, uint256 amount, uint256 units);
+    event Shrouded(address indexed from, uint256 indexed index, address indexed asset, uint256 amount, uint256 units);
     event Exited(uint256 indexed nullifier, address indexed recipient, address indexed asset, uint256 amount);
     event Donation(address indexed from, address indexed asset, uint256 amount);
     event AssetRegistered(uint256 indexed assetId, address indexed asset, bool shareBased);
 
     /// @notice Pull `amount` $OPA into a note completed with `stub`.
-    function shield(uint256 stub, uint256 amount, bytes calldata ciphertext) external returns (uint32 index);
+    function shroud(uint256 stub, uint256 amount, bytes calldata ciphertext) external returns (uint32 index);
 
     /// @notice Spend up to two notes, create two notes, optionally exit part of the value.
     function transact(Transaction calldata t, bytes calldata proof) external;

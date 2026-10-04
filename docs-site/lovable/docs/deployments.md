@@ -26,8 +26,8 @@ Every value is fixed forever at deployment.
 | `hasher_` | The Poseidon2 hasher |
 | `verifier_` | The proof verifier |
 | `token_` | The $OPA token |
-| `guardian_` | The address that can pause new shields |
-| `exitFeeBps_` | Unshield fee in basis points of each exit, at most 500. It stays in the pool |
+| `guardian_` | The address that can pause new shrouds |
+| `exitFeeBps_` | Unshroud fee in basis points of each exit, at most 500. It stays in the pool |
 | `cap` | Deposit schedule for $OPA |
 
 A schedule has an initial cap, a step amount, a step interval in seconds and a ceiling.

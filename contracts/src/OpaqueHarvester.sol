@@ -18,7 +18,7 @@ import {IPonsFactory, IPonsCurve, IPonsHook, IPonsFeeEscrow, PonsLaunchedToken} 
 /// @title OpaqueHarvester
 /// @notice $OPA's Pons creator fee recipient. Anyone can call `harvest`, which collects the creator fees Pons holds
 ///         for $OPA (in ETH), owes the team its share, and spends the rest on $OPA that it donates to the pool, so
-///         every shielded holder's shares are worth more.
+///         every shrouded holder's shares are worth more.
 ///
 ///         The holders' ETH buys in small steps: at most one buy per block, each sized to move the price by no more
 ///         than 0.5%, and never more than 15% dearer than the harvester's own price average. A buy that small is not

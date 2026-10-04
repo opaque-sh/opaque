@@ -17,7 +17,7 @@ description: Short definitions of terms used in these docs.
 
 **Exit target.** A contract that receives an exit and acts on it. Planned.
 
-**Guardian.** The only address that can pause new shields.
+**Guardian.** The only address that can pause new shrouds.
 
 **Harvester.** The contract that collects $OPA's trade fees on Pons, pays the team its share and buys $OPA for the pool. Written, not audited or deployed.
 
@@ -33,6 +33,6 @@ description: Short definitions of terms used in these docs.
 
 **Shares.** The unit of $OPA notes. Their value rises as donations arrive.
 
-**Shield.** Deposit into the pool and receive a note.
+**Shroud.** Deposit into the pool and receive a note.
 
 **Stub.** The part of a note computed from the owner key, a random value and a blinding value. The pool completes it with the asset and amount.

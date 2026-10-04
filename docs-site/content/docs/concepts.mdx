@@ -3,7 +3,7 @@ title: Key concepts
 description: The few ideas you need to understand how Opaque works.
 ---
 
-## Shield
+## Shroud
 
 Depositing $OPA into the pool. The transaction is public: your address and the amount are visible. In return, a note is added to the pool.
 
@@ -43,4 +43,4 @@ $OPA notes count vault shares. When fees are donated to the vault, a share is wo
 
 ## Guardian
 
-An address that can pause new shields. It cannot pause spends or exits, cannot move funds and cannot change any parameter.
+An address that can pause new shrouds. It cannot pause spends or exits, cannot move funds and cannot change any parameter.

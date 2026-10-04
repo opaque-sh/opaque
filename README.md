@@ -8,15 +8,15 @@ Domain: opaque.sh | Ticker: $OPA | Status: pre-alpha, design and scaffolding
 
 ## What it is
 
-- A shielded pool where balances live as encrypted notes. Amounts, senders and recipients stay hidden, proven with zero-knowledge proofs on the user's own device.
-- A flagship coin ($OPA), an ordinary ERC-20 launched on Pons. Private holders earn from the protocol's fee stream. Public holders do not, which is the reason to shield.
+- A shrouded pool where balances live as encrypted notes. Amounts, senders and recipients stay hidden, proven with zero-knowledge proofs on the user's own device.
+- A flagship coin ($OPA), an ordinary ERC-20 launched on Pons. Private holders earn from the protocol's fee stream. Public holders do not, which is the reason to shroud.
 - No admin keys over user funds. Contracts are not upgradeable. The only guardian power is pausing new deposits, never exits.
 
 ## Where this came from
 
 Opaque is a rebuild of the v0 design (see `legacy/v0`). The note model, vault accounting, ERC-4337 gas abstraction and exit-target pattern carry over. What changes:
 
-- A pool built for $OPA only: no ETH, no shield fee, and an unshield fee, a percentage of each exit, that stays in the pool for remaining holders. The note format still carries an asset id so more assets could join in a later version.
+- A pool built for $OPA only: no ETH, no shroud fee, and an unshroud fee, a percentage of each exit, that stays in the pool for remaining holders. The note format still carries an asset id so more assets could join in a later version.
 - No fee recipient in the pool. Trade fees reach the vault through a harvester (not built).
 - A cleaner story for disclosure (view keys, proof of payment) and for integrators (open exit-target SDK).
 

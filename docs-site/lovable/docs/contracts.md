@@ -33,7 +33,7 @@ struct Transaction {
 ## Functions
 
 ```solidity
-function shield(uint256 stub, uint256 amount, bytes calldata ciphertext) external returns (uint32 index);
+function shroud(uint256 stub, uint256 amount, bytes calldata ciphertext) external returns (uint32 index);
 function transact(Transaction calldata t, bytes calldata proof) external;
 function donate(uint256 amount) external;
 function setDepositsPaused(bool paused) external;
@@ -41,10 +41,10 @@ function setDepositsPaused(bool paused) external;
 
 | Function | Description |
 | --- | --- |
-| `shield` | Deposits `amount` $OPA into a note completed with `stub`. Reverts while deposits are paused or above the cap |
-| `transact` | Spends up to two notes, creates two notes and optionally exits part of the value, paying the unshield fee. Checks the root, the nullifiers and the proof |
+| `shroud` | Deposits `amount` $OPA into a note completed with `stub`. Reverts while deposits are paused or above the cap |
+| `transact` | Spends up to two notes, creates two notes and optionally exits part of the value, paying the unshroud fee. Checks the root, the nullifiers and the proof |
 | `donate` | Adds $OPA to the vault backing without minting shares. Anyone can call it, also while deposits are paused |
-| `setDepositsPaused` | Guardian only. Pauses or resumes new shields. Nothing else |
+| `setDepositsPaused` | Guardian only. Pauses or resumes new shrouds. Nothing else |
 
 ## Views
 
@@ -65,7 +65,7 @@ function extDataHash(ExtData calldata e) external pure returns (uint256);
 ```solidity
 event NoteAdded(uint256 indexed index, uint256 commitment, bytes ciphertext);
 event NullifierSpent(uint256 indexed nullifier);
-event Shielded(address indexed from, uint256 indexed index, address indexed asset, uint256 amount, uint256 units);
+event Shrouded(address indexed from, uint256 indexed index, address indexed asset, uint256 amount, uint256 units);
 event Exited(uint256 indexed nullifier, address indexed recipient, address indexed asset, uint256 amount);
 event Donation(address indexed from, address indexed asset, uint256 amount);
 event AssetRegistered(uint256 indexed assetId, address indexed asset, bool shareBased);
@@ -77,18 +77,18 @@ Wallets rebuild the tree and find their notes from `NoteAdded`.
 
 | Error | Raised when |
 | --- | --- |
-| `DepositsPaused` | A shield while the guardian has paused deposits |
+| `DepositsPaused` | A shroud while the guardian has paused deposits |
 | `NotGuardian` | Someone else calls `setDepositsPaused` |
 | `UnknownAsset` | An asset id other than 1 |
 | `BadAmount` | A zero or oversized amount |
 | `NotInField` | A value at or above the field size |
-| `CapExceeded` | A shield above the current deposit cap |
-| `ZeroShares` | A $OPA shield that would mint no shares |
+| `CapExceeded` | A shroud above the current deposit cap |
+| `ZeroShares` | A $OPA shroud that would mint no shares |
 | `UnknownRoot` | A proof against a root that is not in the last 64 |
 | `NullifierUsed` | A nullifier already spent |
 | `DuplicateNullifier` | Both nullifiers in a transaction are the same |
 | `WrongCaller` | `ext.caller` is set and the sender is someone else |
-| `FeeTooHigh` | Relayer fee plus the unshield fee exceeds the exit amount |
+| `FeeTooHigh` | Relayer fee plus the unshroud fee exceeds the exit amount |
 | `BadExit` | An exit without a recipient, or a fee with no exit |
 | `ExitTargetsNotSupported` | `ext.data` is not empty |
 | `InvalidProof` | The verifier rejects the proof |
