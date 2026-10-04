@@ -81,3 +81,55 @@ Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap.
 3. Gas per private exit. v0 measured 4.7M to 5.2M, which may exceed public bundler limits. With the generated Poseidon2 hasher, one tree insert costs about 24 hashes at roughly 41k gas each (about 1M), so a transaction that adds two notes is about 2M before proof verification. Worth optimizing (a cheaper hash call path, or inserting aligned pairs together) before launch.
 4. Exact holder share and fee levels.
 5. Native ETH handling in `IExitTarget` (send value vs approve).
+6. Note encryption format and the epoch scheme (see section 11).
+
+## 11. Research: forward-secure, PQ-ready note encryption
+
+Status: research. Nothing here changes the circuit.
+
+### Problem
+
+Each transaction carries two ciphertexts (`ct0`, `ct1` in `ExtData`) so recipients can find and read their notes. They stay on chain forever, which gives two long-term risks:
+
+- **Key leak.** If a recipient's viewing or decryption key leaks, every past note encrypted to it can be read.
+- **Harvest now, decrypt later.** If the key exchange is elliptic-curve only, someone can store ciphertexts today and decrypt them once a large quantum computer exists.
+
+The pool's commitments and nullifiers use Poseidon, which is hash-based. The proof system (UltraHonk over BN254) is not post-quantum. A quantum attacker's main power there is forging proofs, not reading old notes, so the ciphertext is the privacy gap that matters first.
+
+### Proposal for v1 (no format change needed later)
+
+1. **Hybrid key exchange.** Recipients publish an elliptic-curve receiving key and an ML-KEM-768 encapsulation key. The sender derives one AEAD key from both shared secrets with HKDF, bound to the transaction (pool address, chain id, output index, epoch). An attacker must break both to read a note.
+2. **Versioned ciphertext.** `version (1) | epoch (4) | ec_ephemeral (33) | kem_ct (1088) | nonce (12) | aead_ct | tag (16)`. The epoch field is there from day one, even if v1 always sets it to 0, so epoch keys can be added without a format change.
+3. **Plaintext.** `assetId | amount | rho | r` plus a short memo field. Padded to a fixed length so ciphertext sizes do not leak the content type.
+4. **Calldata, not storage.** Ciphertexts go in event data only. Rough size is about 1.2 KB per ciphertext and about 2.4 KB per two-note transaction. At L1 calldata pricing (16 gas per nonzero byte) that is on the order of 40k gas. Real cost on Robinhood Chain must be measured.
+
+### Epoch keys (later, optional)
+
+Goal: leaking a key from today should not expose old notes, and a user should be able to disclose a date range without disclosing everything (this also serves the period report in section 6).
+
+Options, with trade-offs:
+
+- **Cold master key, per-epoch hot keys (elliptic-curve part).** Derive `sk_e = sk_master + H(pk_master, e)`. The master stays offline, the device holds only recent epoch keys, and range disclosure is just handing over the keys for those epochs. This limits damage but is not strict forward secrecy: if the master leaks, everything leaks.
+- **Pre-published key bundles (needed for the ML-KEM part).** ML-KEM has no additive key derivation, so per-epoch ML-KEM keys must be generated in advance and published. Costs: someone has to host the bundles, and looking them up reveals who is receiving.
+- **Tree-based forward-secure encryption.** Strict forward secrecy through key evolution. Lattice-based versions exist but are large and slow. Out of scope until a concrete need appears.
+
+Open: how a payer learns the receiver's current epoch key without a lookup that leaks activity (registry, rotating stealth meta-address, or out-of-band).
+
+### Epoch-bounded notes (not recommended for now)
+
+An alternative idea is to expire nullifiers after N epochs and force notes to be migrated. It bounds nullifier-set growth, but it makes users do periodic work and the migration timing leaks metadata. Decaying linkability (nullifiers that stop being linkable) is not safe: it allows double spends.
+
+### Moving to a post-quantum proof system
+
+The pool is immutable, so a future proof system means a new pool version. Design for this now:
+
+- A versioned pool. The next version's circuit accepts nullifiers from the old pool, so users can migrate inside the proof without a public unshield and reshield.
+- Candidate: a hash-based proof system (STARK style). Verification cost on the EVM has to be checked before committing.
+- Do not use "post-quantum" as a marketing claim until the commitments, the proofs and the encryption all are.
+
+### Rejected ideas
+
+- **Replacing the Merkle-Poseidon pool with lattice ring signatures.** Smaller anonymity sets than a full-pool SNARK, signatures of tens to hundreds of KB, no EVM precompiles, and it discards the circuit and tests built so far.
+- **Dynamic security tiers chosen by a threat oracle.** Needs an admin, which contradicts the no-admin core, and visible tiers split the anonymity set.
+- **FHE on shielded balances.** Not practical on the EVM and someone still has to compute and decrypt.
+- **Notary-set bridges.** Reintroduce a trusted set. A ZK light-client proof is the better primitive.

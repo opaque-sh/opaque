@@ -22,4 +22,14 @@ Headline: the privacy coin that pays you to stay private.
 
 ## Logo
 
-The current mark is a slat-and-disc concept: a white rectangle cut into horizontal slats, a dark disc behind, a teal glow. It was generated with Gemini, so treat it as a sketch. Rebuild it as a clean vector before launch, and make a 3-slat version for the token icon.
+Two concepts, drawn as SVG in `brand/logo/` (preview: `brand/logo/preview.png`). Regenerate with `python3 tools/gen_logos.py`.
+
+1. **Dissolving disc** (`disc-*.svg`): a solid circle breaking into halftone dots, so the dither texture is the mark. `disc-icon.svg` has bigger dots for token and favicon use. The teal dots mark the dissolve front.
+2. **Sliced o** (`o-*.svg`, `lockup-*.svg`): a ring cut into horizontal slats like reeded glass. The lockup swaps it in for the `o` of `opaque`, set in Geist Mono Medium. The teal line sits in one gap only.
+
+Variants: `full` (dark tile with teal), `mono-white` and `mono-black` (transparent, no teal).
+
+Notes:
+- The wordmark is outlined from Geist Mono (SIL Open Font License, copy in `brand/fonts/`), so the SVGs need no font installed.
+- The earlier Gemini slat-and-disc image was only a sketch and is not used.
+- Check small sizes before picking a final. At 16px the disc becomes a smudge, so the sliced ring is the safer favicon.
