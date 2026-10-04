@@ -57,3 +57,7 @@ internet access for the trusted setup (CRS). It has not been run end to end yet,
 1. **Wallet-key binding.** Ownership is `opk = H(3, nk)` for now. v0 bound spends to a wallet key with an EIP-712 secp256k1 signature, about 73k of its 83k gates. That check still has to be ported.
 2. **Generated verifier in the repo.** Run the script above, then add an end-to-end test that proves a spend and submits it to `OpaquePool`.
 3. **Lineage hooks.** Undecided, see `docs/DESIGN.md`. Must be settled before the circuit is frozen.
+
+## Building the verifier without installing anything
+
+`.github/workflows/build-verifier.yml` runs `scripts/build_verifier.sh` on a GitHub runner. In the repo's Actions tab, pick "build-verifier" and press "Run workflow". When it finishes, download the "verifier-output" artifact: it holds the generated `HonkVerifier.sol`, the proof, the public inputs, the logs and a contract size report. The workflow has not been run yet, so expect to fix a step or two the first time.

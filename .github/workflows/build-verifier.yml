@@ -1,0 +1,59 @@
+name: build-verifier
+
+# Manual run only. Open the Actions tab, pick "build-verifier", press "Run workflow".
+# It compiles the circuit, makes a real proof, checks it natively, writes the Solidity verifier and uploads
+# everything as a download called "verifier-output". It needs internet access to fetch the proving setup, which
+# GitHub's runners have.
+#
+# NOT run before by the author. If a step fails, the log (also uploaded) shows which one.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: noir-lang/noirup@v0.1.4
+        with:
+          toolchain: 1.0.0-beta.11
+
+      - name: Install Barretenberg (bb)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install | bash
+          echo "$HOME/.bb" >> "$GITHUB_PATH"
+          export PATH="$HOME/.bb:$PATH"
+          bbup --version 1.2.1 || bbup -v 1.2.1 || { bbup --help; exit 1; }
+          bb --version
+
+      - name: Show tool versions
+        run: |
+          nargo --version
+          bb --version
+
+      - name: Build the proof and the Solidity verifier
+        run: |
+          mkdir -p out-verifier
+          ./circuits/pool/scripts/build_verifier.sh 2>&1 | tee out-verifier/build.log
+
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Check the verifier compiles and how big it is
+        continue-on-error: true
+        run: |
+          tools/setup-libs.sh
+          forge build --sizes --skip test 2>&1 | tee out-verifier/sizes.log
+
+      - name: Collect output
+        if: always()
+        run: |
+          mkdir -p out-verifier
+          cp contracts/src/HonkVerifier.sol out-verifier/ 2>/dev/null || true
+          cp -r circuits/pool/target/bb out-verifier/bb 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verifier-output
+          path: out-verifier
