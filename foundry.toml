@@ -5,7 +5,7 @@ script = "contracts/script"
 out = "out"
 libs = ["lib"]
 remappings = ["v4-core/=lib/v4-core/src/"]
-fs_permissions = [{ access = "read", path = "./lib/v4-core/out" }]
+fs_permissions = [{ access = "read", path = "./lib/v4-core/out" }, { access = "read", path = "./contracts/test/fixtures" }]
 solc_version = "0.8.28"
 evm_version = "cancun"
 optimizer = true
