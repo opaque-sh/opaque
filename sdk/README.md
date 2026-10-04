@@ -15,6 +15,10 @@ npm run e2e:gen     # rewrite circuits/pool/e2e.toml and contracts/test/fixtures
 | `notes.ts` | Owner key, note commitment, nullifier, and `extDataHash`, matching `OpaquePool.extDataHash` |
 | `tree.ts` | The depth-24 Merkle tree with the pool's empty leaf, with paths for the circuit |
 | `witness.ts` | Builds a `Prover.toml` for one transaction and checks everything the circuit checks first |
+| `x25519.ts` | X25519 from RFC 7748, checked against its vectors. Not constant time, replace with an audited library before wallet use |
+| `keys.ts` | Account keys from one wallet signature, and addresses (opk plus view public key) |
+| `encrypt.ts` | Note encryption to a view key: X25519, HKDF-SHA256, AES-256-GCM, 173 bytes |
+| `scan.ts` | Rebuilds the tree from `NoteAdded` events and finds your notes, checking each commitment |
 | `entropy.ts` | Mixes pointer movement into note secrets, never weaker than the system random source |
 | `e2e.ts` | The fixed end-to-end scenario: a shroud and a partial unshroud |
 
@@ -22,6 +26,5 @@ What is checked: the TypeScript reproduces the circuit's example public inputs (
 and one-leaf roots, and Foundry's ext data hash. The circuit solves a witness the SDK builds for the scenario, and
 `OpaquePoolE2E.t.sol` shows the real pool's root equals the SDK's.
 
-Not built yet: syncing the tree from pool events, finding your notes, note encryption, key storage, the browser
-prover, the relayer client. Those need the ciphertext format and the wallet-key binding decided first (see
-`docs/DESIGN.md`).
+Not built yet: fetching events from a node, key and note storage, the browser prover, the relayer client. The key and
+encryption decisions are in `docs/DESIGN.md`.

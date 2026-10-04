@@ -69,8 +69,9 @@ Real in-pool swaps need an in-circuit epoch swap in the style of Penumbra ZSwap.
 
 - `contracts/src/OpaquePool.sol`: shroud, transact, donate, fee collection, caps, guardian pause. Tested with a mock hasher and verifier.
 - `contracts/src/Poseidon2Hasher.sol`: generated Poseidon2 (BN254, t = 4). Matches the circuit on every reference vector, and the pool's tree roots match the circuit's Merkle function.
-- `circuits/pool/scripts/build_verifier.sh`: proof and verifier pipeline. Not run end to end yet (the trusted-setup download was blocked where it was written).
-- `circuits/pool`: asset-aware spend circuit. Compiles and passes its tests. No wallet-key binding yet.
+- `circuits/pool/scripts/build_verifier.sh` and `prove_e2e.sh`: proof and verifier pipeline, run through the `build-verifier` GitHub workflow. A real proof for a shroud and an unshroud passes through the real pool, hasher and generated verifier in `OpaquePoolE2E.t.sol`.
+- `circuits/pool`: asset-aware spend circuit. Compiles and passes its tests. Ownership is `opk = H(3, nk)` only. See "Decisions on keys and encryption" below for how a wallet controls `nk`.
+- `sdk/`: Poseidon2, Keccak, notes, Merkle tree, witness builder, key derivation, note encryption and a scanner. Tested against the circuit's and contract's reference values. No event fetching, storage or browser prover yet.
 - Exits are plain transfers to the recipient. Exit targets (`IExitTarget`) are not wired in. A transaction with non-empty `ext.data` reverts for now.
 - The ERC-4337 account path from v0 is not ported.
 
@@ -96,7 +97,13 @@ Each transaction carries two ciphertexts (`ct0`, `ct1` in `ExtData`) so recipien
 
 The pool's commitments and nullifiers use Poseidon, which is hash-based. The proof system (UltraHonk over BN254) is not post-quantum. A quantum attacker's main power there is forging proofs, not reading old notes, so the ciphertext is the privacy gap that matters first.
 
-### Proposal for v1 (no format change needed later)
+### Decisions on keys and encryption (2026-10-04)
+
+- **Wallet binding: derive, do not verify.** The wallet signs one fixed message and the signature seeds `nk` and the view key (`sdk/keys.ts`). The circuit has no signature check, so it stays small and the verifier stays inside the contract size limit (87 bytes of room at the time of writing). Costs: the wallet's signatures must be deterministic (the app signs twice and compares, and refuses a wallet that differs), smart-contract wallets are not supported, and anyone who obtains that signature controls the notes.
+- **Encryption: classical for v1.** X25519, HKDF-SHA256 and AES-256-GCM (`sdk/encrypt.ts`), 173 bytes per ciphertext, with a version byte. These are not quantum safe, so ciphertexts recorded today could be read later by a quantum computer. The proposal below (hybrid with ML-KEM) is a later version byte, and the pool treats ciphertexts as opaque bytes, so it needs no contract or circuit change.
+- The X25519 code in the SDK is written from RFC 7748 and checked against its test vectors. It is not constant time and should be replaced with an audited library before wallet use.
+
+### Proposal for the later hybrid version
 
 1. **Hybrid key exchange.** Recipients publish an elliptic-curve receiving key and an ML-KEM-768 encapsulation key. The sender derives one AEAD key from both shared secrets with HKDF, bound to the transaction (pool address, chain id, output index, epoch). An attacker must break both to read a note.
 2. **Versioned ciphertext.** `version (1) | epoch (4) | ec_ephemeral (33) | kem_ct (1088) | nonce (12) | aead_ct | tag (16)`. The epoch field is there from day one, even if v1 always sets it to 0, so epoch keys can be added without a format change.
