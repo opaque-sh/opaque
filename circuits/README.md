@@ -61,3 +61,9 @@ internet access for the trusted setup (CRS). It has not been run end to end yet,
 ## Building the verifier without installing anything
 
 `.github/workflows/build-verifier.yml` runs `scripts/build_verifier.sh` on a GitHub runner. In the repo's Actions tab, pick "build-verifier" and press "Run workflow". When it finishes, download the "verifier-output" artifact: it holds the generated `HonkVerifier.sol`, the proof, the public inputs, the logs and a contract size report. The workflow has not been run yet, so expect to fix a step or two the first time.
+
+### Result of the first run (2026-10-04)
+
+The workflow ran on GitHub: the circuit compiled, the example witness solved, a proof was made and `bb verify` accepted it. The generated `HonkVerifier.sol` is now in `contracts/src/` (it declares 24 public inputs: the circuit's 8 plus 16 for the pairing points, and its `verify` takes the 8). At 200 optimizer runs it is 25,502 bytes, over the 24,576 byte contract limit, so `foundry.toml` compiles that one file with 1 run, which gives 24,489 bytes. That leaves 87 bytes of room, so a different circuit or a new Barretenberg version could push it over again. It needs solc 0.8.27 or newer, so the repo moved to 0.8.28.
+
+Not done yet: checking the proof on chain in a Foundry test. That needs the `proof` and `public_inputs` files from the run's artifact.

@@ -15,4 +15,4 @@ description: Fixed values in the contracts and the circuit.
 | Field | BN254 scalar field | everywhere |
 | Hash | Poseidon2, state width 4, 8 full and 56 partial rounds | `Poseidon2Hasher`, circuit |
 | Proof system | UltraHonk (Barretenberg) | circuit |
-| Compiler | Solidity 0.8.26, Cancun | contracts |
+| Compiler | Solidity 0.8.28, Cancun | contracts |

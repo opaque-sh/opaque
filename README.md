@@ -58,7 +58,7 @@ forge test
 cd circuits/pool && nargo test
 ```
 
-Contracts use solc 0.8.26. The circuit is tested with nargo 1.0.0-beta.11.
+Contracts use solc 0.8.28. The circuit is tested with nargo 1.0.0-beta.11.
 
 ## Status
 
