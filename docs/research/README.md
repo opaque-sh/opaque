@@ -27,6 +27,24 @@ Notes on the layers around the proof: who sees what, how wallets behave, and how
 | [Sealed batch swaps](sealed-batch-swaps.md) | How can a swap hide its trade, not only its recipient? |
 | [Selective disclosure and association sets](selective-disclosure.md) | How can a user prove funds are clean without revealing who they are? |
 | [Proving cost and proof systems](proving-cost.md) | How do proof size, verification gas and browser proving time come down? |
+| [Root-choice leakage](root-choice-leakage.md) | What does the Merkle root a wallet proves against reveal about the note? |
+| [Coarse exit amounts](coarse-exit-amounts.md) | Can the circuit force exits onto a grid so amounts stop fingerprinting? |
+| [Epoch-batched exits](epoch-batched-exits.md) | Can payout timing become a protocol property instead of a wallet habit? |
+| [Churn transactions](churn-transactions.md) | Can in-pool refreshes erase the age of a note? |
+| [Anonymity-set accounting](anonymity-set-accounting.md) | How private was this exit, as a measured and reproducible number? |
+
+## Advanced constructions
+
+Longer-horizon cryptography that would extend what the pool can hide.
+
+| Note | Question it asks |
+| --- | --- |
+| [Oblivious contract storage](oblivious-storage.md) | Can mutable shared state hide which parts are touched? |
+| [Witness-encrypted disclosure](witness-encrypted-disclosure.md) | Can data unlock only when a public condition is met, with no key holder? |
+| [Proofs over encrypted state](proofs-over-encrypted-state.md) | Can shared aggregates be updated under homomorphic encryption and verified by proof? |
+| [Polynomial-commitment note sets](polynomial-commitment-state.md) | Can the note set be one commitment with cheaper membership proofs? |
+| [Revocable anonymous credentials](revocable-credentials.md) | Can credentials be revoked without linking past use? |
+| [Attested execution with proofs](attested-execution-with-proofs.md) | Can enclave results be verified on-chain through a proof, with k-of-n hardware agreement? |
 
 ## How to read these notes
 
