@@ -1,31 +1,24 @@
 # Research
 
-Open questions and directions we are exploring for Opaque. None of this is built, audited or promised. The shipped design is in `docs/DESIGN.md`, and the order of work is in `docs/ROADMAP.md`.
+Where Opaque is heading beyond the live pool. Each note describes an idea, how it relates to the current design, and what is still open. These are research directions. The shipped design is in `docs/DESIGN.md`, and the order of work is in `docs/ROADMAP.md`.
 
-Follow this folder to watch the thinking develop. Each topic gets its own note as it matures.
+| Note | Question it asks |
+| --- | --- |
+| [Quantum-safe notes](quantum-safe-notes.md) | Can notes and proofs rest on lattice and hash assumptions instead of elliptic curves? |
+| [Forward-secure signatures](forward-secure-signatures.md) | Can spend authority evolve so that a leaked key cannot touch the past? |
+| [Healing privacy](healing-privacy.md) | Can linkability decay over time, so exposure has a half-life? |
+| [Stealth channels](stealth-channels.md) | Can payment channels open and settle without revealing who or how much? |
+| [Adaptive security parameters](adaptive-lattice-dimensions.md) | Can proof strength scale with the value at stake without splitting the crowd? |
+| [Computing on shrouded balances](shrouded-computation.md) | Can contracts run on encrypted state? |
+| [Private cross-chain movement](cross-chain.md) | Can value move between chains without a bridge operator seeing it? |
 
-## Directions
+## How to read these notes
 
-### Notes that survive quantum computers
-Today's note encryption uses elliptic curves, which a large quantum computer could break. We plan a hybrid key exchange (elliptic curve plus a post-quantum scheme) with a versioned ciphertext format, and a longer path toward a hash-based proof system. See `docs/DESIGN.md` section 11.
+Terms used throughout:
 
-### Epoch keys and forward secrecy
-Keys that rotate on a fixed schedule, so a leaked key exposes one window instead of everything. Also a way to disclose activity for a date range without revealing the rest.
-
-### Time-bounded anonymity
-Whether privacy sets can be organized around fixed windows, and what that would do to linkability over time. Open question: how it fits a shared note tree with nullifiers.
-
-### Private movement between chains
-Moving shrouded value across chains without exposing source, destination or amount to a bridge operator. Open question: what a bridge can attest to without learning anything.
-
-### Private swaps
-An in-circuit epoch swap, so notes can move between assets without a public link. Reference exit-target design comes first, as in the roadmap.
-
-### Private payments for AI services
-Blind-signed tokens bought by spending notes, so a service can be paid without linking the payment to a wallet. Open question: what the service itself can still observe.
-
-### Computing on shrouded balances
-Long-term and uncertain: encrypted computation over private state. We list it so the question stays visible, not because there is a design.
+- **Note:** a private record of value inside the pool.
+- **Nullifier:** the tag revealed when a note is spent. It stops double spends. In ring-signature designs the equivalent is a key image or linkability tag.
+- **FSLRS:** forward-secure linkable ring signature. A ring signature hides which member of a group signed, linkability lets the system detect two signatures from the same key, and forward security means a key stolen today cannot forge signatures from before the theft.
 
 ## Contributing
 
