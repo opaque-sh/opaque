@@ -1,7 +1,7 @@
 # Deploying the pool
 
 One script deploys the hasher, the verifier and the pool: `contracts/script/DeployPool.s.sol`. It was run end to end
-against a local chain. It has not been run on Robinhood Chain.
+against a local chain and on Robinhood Chain mainnet with a throwaway token.
 
 ## Settings baked into the script
 
@@ -17,7 +17,7 @@ All of it is fixed once deployed. Change it in the script before you run it, not
 
 1. Launch $OPA on Pons (ETH pair, buyback off, creator tax as decided). Read `getLaunchedToken(token)` and check `pairToken` is the zero address and `buybackEnabled` is false.
 2. Deploy the pool with that token. The deposit schedule starts at this moment.
-3. Deploy the harvester with the pool address (`docs/HARVESTER.md`).
+3. Deploy the harvester with `contracts/script/DeployHarvester.s.sol` (`docs/HARVESTER.md`).
 4. After the 12 to 24 hour manual period, move the Pons creator fee recipient to the harvester.
 
 ## Running it
@@ -35,3 +35,5 @@ mostly the verifier, so check the chain's gas price first. Run it without `--bro
 
 The verifier is 24,489 bytes against a 24,576 byte limit. If the chain turns out to enforce a smaller limit, the
 verifier deploy fails and the whole script reverts.
+
+The addresses of what has been deployed are recorded in `docs/DEPLOYMENTS.md`.
